@@ -1,0 +1,10 @@
+[{
+    "Idinstituicao" : "PK*  int  Tamanho:36 Preenchimento: Obrigatório",
+    "Nome" : "String Tamanho:100 Preenchimento: Opcional",
+    "Logo" : "byte[] Tamanho:0 Preenchimento: Opcional",
+    "Cnpj" : "String Tamanho:18 Preenchimento: Opcional",
+    "Razaosocial" : "String Tamanho:200 Preenchimento: Opcional",
+    "Cidade" : "String Tamanho:100 Preenchimento: Opcional",
+    "Email" : "String Tamanho:100 Preenchimento: Opcional",
+    "Telefone" : "String Tamanho:100 Preenchimento: Opcional",
+}]

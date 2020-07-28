@@ -1,0 +1,12 @@
+[{
+    "Idprofessor" : "PK*  int  Tamanho:36 Preenchimento: Obrigatório",
+    "Idinstituicao" : "Entidade Tamanho:36 Preenchimento: Obrigatório",
+    "Nome" : "String Tamanho:100 Preenchimento: Opcional",
+    "Email" : "String Tamanho:50 Preenchimento: Opcional",
+    "Telefone" : "String Tamanho:50 Preenchimento: Opcional",
+    "Foto" : "byte[] Tamanho:0 Preenchimento: Opcional",
+    "Curriculo" : "byte[] Tamanho:0 Preenchimento: Opcional",
+    "Banco" : "int Tamanho:10 Preenchimento: Opcional",
+    "Agencia" : "int Tamanho:10 Preenchimento: Opcional",
+    "Conta" : "String Tamanho:15 Preenchimento: Opcional",
+}]

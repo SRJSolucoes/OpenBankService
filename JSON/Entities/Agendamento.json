@@ -1,0 +1,10 @@
+[{
+    "Idagendamento" : "PK*  int  Tamanho:36 Preenchimento: Obrigatório",
+    "Fkaluno" : " int  Tamanho:36 Preenchimento: Obrigatório",
+    "Idprofessor" : "Entidade Tamanho:36 Preenchimento: Obrigatório",
+    "Nota" : "byte[] Tamanho:0 Preenchimento: Opcional",
+    "Aproveitamento" : "int Tamanho:10 Preenchimento: Opcional",
+    "Feedback" : "String Tamanho:2000 Preenchimento: Opcional",
+    "Dataehora" : "DateTime Preenchimento: Opcional",
+    "Status" : "Char Tamanho:1 Preenchimento: Opcional",
+}]

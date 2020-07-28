@@ -1,0 +1,7 @@
+[{
+    "Idagendamentodocs" : "PK*  int  Tamanho:36 Preenchimento: Obrigatório",
+    "Titulo" : "byte[] Tamanho:0 Preenchimento: Opcional",
+    "Tipo" : "Char Tamanho:1 Preenchimento: Obrigatório",
+    "Documento" : "byte[] Tamanho:0 Preenchimento: Opcional",
+    "Observacao" : "byte[] Tamanho:0 Preenchimento: Opcional",
+}]

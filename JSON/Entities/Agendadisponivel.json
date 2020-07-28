@@ -1,0 +1,5 @@
+[{
+    "Idagendadisponivel" : "PK*  int  Tamanho:36 Preenchimento: Obrigatório",
+    "Idprofessor" : "Entidade Tamanho:36 Preenchimento: Obrigatório",
+    "Dataehora" : "DateTime Preenchimento: Obrigatório",
+}]
