@@ -7,6 +7,9 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using BankService.Services;
+using BankService.Models;
+using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace BankService
 {
@@ -30,45 +33,48 @@ namespace BankService
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                _logger.LogInformation("Worker executando em: {time}",
-                    DateTimeOffset.Now);
+                _logger.LogInformation("Worker executando em: {time}", DateTimeOffset.Now);
 
-                APIBankServices.GetAccountDetail();
-
-                //foreach (string host in _serviceConfigurations.Hosts)
-                //{
-                //    _logger.LogInformation($"Verificando a disponibilidade do host {host}");
-
-                //    var resultado = new ResultadoMonitoramento();
-                //    resultado.Horario = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                //    resultado.Host = host;
-
-                //    // Verifica a disponibilidade efetuando um ping
-                //    // no host que foi configurado em appsettings.json
-                //    try
-                //    {
-                //        using (Ping p = new Ping())
-                //        {
-                //            var resposta = p.Send(host);
-                //            resultado.Status = resposta.Status.ToString();
-                //        }
-                //    }
-                //    catch (Exception ex)
-                //    {
-                //        resultado.Status = "Exception";
-                //        resultado.Exception = ex;
-                //    }
-
-                //    string jsonResultado = JsonConvert.SerializeObject(resultado);
-                //    if (resultado.Exception == null)
-                //        _logger.LogInformation(jsonResultado);
-                //    else
-                //        _logger.LogError(jsonResultado);
-                //}
+                // Fazer uma rorina de Schedule disso, para executar quantas vezes for schedulado por dia
+                Transferencias();
+                LeituradeRetorno();
 
                 await Task.Delay(
                     _serviceConfigurations.Intervalo, stoppingToken);
             }
+        }
+
+        protected void Transferencias()
+        {
+            var resultado = new ResultadoProcessamento();
+            resultado.Horario = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+
+            try
+            {
+
+                APIQeshServices QeshAccountDetail = new APIQeshServices();
+                QeshAccountDetail.GetAccountDetail();
+
+
+                foreach (PagamentoModel pagamento in QeshAccountDetail.GetLimaPagamentosdoDiaCorrente())
+                {
+                    QeshAccountDetail.TED(new TEDModel());
+                }
+
+                resultado.Status = "Sucess";
+                string jsonResultado = JsonConvert.SerializeObject(resultado);
+                _logger.LogInformation(jsonResultado);
+            }
+            catch (Exception ex)
+            {
+                resultado.Status = "Exception";
+                resultado.Exception = ex;
+                string jsonResultado = JsonConvert.SerializeObject(resultado);
+                _logger.LogError(jsonResultado);
+            }
+        }
+
+        protected void LeituradeRetorno() { 
         }
     }
 }
