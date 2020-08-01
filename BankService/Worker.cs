@@ -52,7 +52,8 @@ namespace BankService
             try
             {
 
-                APIQeshServices QeshAccountDetail = new APIQeshServices();
+                APISRJService QeshAccountDetail = new APISRJService();
+
                 QeshAccountDetail.GetAccountDetail();
 
 

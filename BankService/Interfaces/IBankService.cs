@@ -9,6 +9,6 @@ namespace BankService.Interfaces
     public interface IBankService 
     {
         AccountModel GetAccountDetail();
-        RetornoTEDModel TED(TEDModel ted);
+        TEDEnvioModel TED(TEDModel ted);
     }
 }

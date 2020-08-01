@@ -29,7 +29,7 @@ namespace BankService.Services
             return JsonConvert.DeserializeObject<AccountModel>(s);
         }
 
-        public RetornoTEDModel TED(TEDModel ted)
+        public TEDEnvioModel TED(TEDModel ted)
         {
             try
             {
@@ -57,7 +57,7 @@ namespace BankService.Services
 
                 using TextReader tr = new StreamReader(resp.GetResponseStream());
                 var s = tr.ReadToEnd();
-                return JsonConvert.DeserializeObject<RetornoTEDModel>(s);
+                return JsonConvert.DeserializeObject<TEDEnvioModel>(s);
             }
             catch (Exception ex)
             {
