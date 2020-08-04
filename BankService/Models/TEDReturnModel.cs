@@ -5,9 +5,8 @@ using System.Threading.Tasks;
 
 namespace BankService.Models
 {
-    public class TEDRetornoModel
+    public class TEDReturnModel
     {
-
         public int id { get; set; }
         public string idAdjustment { get; set; }
         public string transactionCode { get; set; }

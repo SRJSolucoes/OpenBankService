@@ -1,6 +1,6 @@
 ﻿namespace BankService.Models
 {
-    public class PagamentoIDModel
+    public class PaymentIDModel
     {
         public int idpagamento { get; set; }
     }

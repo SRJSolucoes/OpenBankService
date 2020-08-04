@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace BankService.Models
 {
-    public class PagamentoModel
+    public class PaymentModel
     {
         public int idpagamento { get; set; }
         public DateTime dataprevpagamento { get; set; }
@@ -38,6 +38,7 @@ namespace BankService.Models
         public String cidadefavorecido { get; set; }
         public String uffavorecido { get; set; }
         public String tipopagamento { get; set; }
+        public String transactioncode { get; set; }
         public LotepagamentoSimpleModel lotepagamento { get; set; }
         public ISet<LogpagamentoModel> Logpagamento { get; set; }
     }

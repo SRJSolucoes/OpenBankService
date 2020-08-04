@@ -18,6 +18,6 @@ namespace BankService.Models
 
         public UsuarioIDModel usuario { get; set; }
 
-        public PagamentoIDModel pagamento { get; set; }
+        public PaymentIDModel pagamento { get; set; }
     }
 }

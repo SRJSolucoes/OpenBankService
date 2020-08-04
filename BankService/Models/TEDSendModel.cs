@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace BankService.Models
 {
-    public class TEDEnvioModel
+    public class TEDSendModel
     {
         public string transactionCode { get; set; }
         public string originalAccount { get; set; }

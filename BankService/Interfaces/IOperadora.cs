@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace BankService.Interfaces
 {
-    public interface IBankService 
+    public interface IOperadora
     {
-        void MakeDayTransfers(IOperadora Operator, IBank banco);
-        void LeituradeRetorno();
+        public List<PaymentModel> PaymentsoftheDay(String BancoOrigem);
+        public void UpdatePayment(PaymentModel Payment);
     }
 }

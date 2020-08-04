@@ -10,6 +10,7 @@ using BankService.Services;
 using BankService.Models;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using BankService.Interfaces;
 
 namespace BankService
 {
@@ -17,6 +18,10 @@ namespace BankService
     {
         private readonly ILogger<Worker> _logger;
         private readonly ServiceConfigurations _serviceConfigurations;
+        private readonly IBankService BankService = new APIBankService();
+
+        private readonly IOperadora Operator = new SRJService();
+        private readonly IBank Bank = new QeshServices();
 
         public Worker(ILogger<Worker> logger,
             IConfiguration configuration)
@@ -33,49 +38,32 @@ namespace BankService
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                _logger.LogInformation("Worker executando em: {time}", DateTimeOffset.Now);
+                var resultado = new ResultadoProcessamento();
+                resultado.Horario = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 
-                // Fazer uma rorina de Schedule disso, para executar quantas vezes for schedulado por dia
-                Transferencias();
-                LeituradeRetorno();
-
-                await Task.Delay(
-                    _serviceConfigurations.Intervalo, stoppingToken);
-            }
-        }
-
-        protected void Transferencias()
-        {
-            var resultado = new ResultadoProcessamento();
-            resultado.Horario = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-
-            try
-            {
-
-                APISRJService QeshAccountDetail = new APISRJService();
-
-                QeshAccountDetail.GetAccountDetail();
-
-
-                foreach (PagamentoModel pagamento in QeshAccountDetail.GetLimaPagamentosdoDiaCorrente())
+                try
                 {
-                    QeshAccountDetail.TED(new TEDModel());
+                    _logger.LogInformation("Worker executando em: {time}", DateTimeOffset.Now);
+
+                    // Fazer uma rorina de Schedule disso, para executar quantas vezes for schedulado por dia
+                    BankService.MakeDayTransfers(Operator, Bank);
+
+                    resultado.Status = "Sucess";
+
+                    await Task.Delay(
+                        _serviceConfigurations.Intervalo, stoppingToken);
+
+                    string jsonResultado = JsonConvert.SerializeObject(resultado);
                 }
-
-                resultado.Status = "Sucess";
-                string jsonResultado = JsonConvert.SerializeObject(resultado);
-                _logger.LogInformation(jsonResultado);
+                catch (Exception ex)
+                {
+                    resultado.Status = "Exception";
+                    resultado.Exception = ex;
+                    string jsonResultado = JsonConvert.SerializeObject(resultado);
+                    _logger.LogError(jsonResultado);
+                }
             }
-            catch (Exception ex)
-            {
-                resultado.Status = "Exception";
-                resultado.Exception = ex;
-                string jsonResultado = JsonConvert.SerializeObject(resultado);
-                _logger.LogError(jsonResultado);
-            }
-        }
 
-        protected void LeituradeRetorno() { 
         }
     }
 }
