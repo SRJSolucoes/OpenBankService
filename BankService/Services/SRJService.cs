@@ -14,12 +14,18 @@ namespace BankService.Services
     public class SRJService : IOperadora
     {
         #region Constantes
-        public const string URLSRJ = "http://ec2-18-220-7-194.us-east-2.compute.amazonaws.com/LimaBtc";
+        //public const string URLSRJ = "http://ec2-18-220-7-194.us-east-2.compute.amazonaws.com/LimaBtc";
+        public const string URLSRJ = "http://localhost:57334";
         public const string ApiSRJPagamentosdoDia = "/api/Pagamento/GetPagamentosDoDia";
         public const string ApiSRJAtualizaStatus = "api/pagamento/AlterStatus";
         public const string ApiSRJTokem = "/oauth/login";
-        public const string SRJUser = "eduardo@srjsolucoes.com.br";
-        public const string SRJPass = "Valentina3010";
+        //public const string SRJUser = "eduardo@srjsolucoes.com.br";
+        //public const string SRJPass = "Valentina3010";
+
+        public const string SRJUser = "eduardo@gmail.com";
+        public const string SRJPass = "12345";
+
+
         #endregion
 
         #region SRJToken
@@ -33,7 +39,7 @@ namespace BankService.Services
         public SRJToken GetSRJToken(string usuario, string senha)
         {
             String URL = String.Format("{0}(1)", URLSRJ, ApiSRJTokem);
-            var wr = (HttpWebRequest)WebRequest.Create(URL);
+            var wr = (HttpWebRequest)WebRequest.Create("http://localhost:57334/oauth/login");
             wr.Proxy = null;
             wr.Method = "POST";
             wr.Accept = "application/json";
@@ -41,7 +47,7 @@ namespace BankService.Services
 
             using (TextWriter tw = new StreamWriter(wr.GetRequestStream()))
             {
-                tw.Write("username=" + usuario + ":password=" + senha + ":grant_type=password");
+                tw.Write("username=" + usuario + ";password=" + senha + ";grant_type=password");
             }
             var resp = wr.GetResponse();
             using (TextReader tr = new StreamReader(resp.GetResponseStream()))
@@ -53,13 +59,13 @@ namespace BankService.Services
 
         public List<PaymentModel>PaymentsoftheDay(String BancoOrigem)
         {
-            var Tokem = GetSRJToken(SRJUser, SRJPass);
+            //var Tokem = GetSRJToken(SRJUser, SRJPass);
 
             String URL = String.Format("{0}{1}", URLSRJ, ApiSRJPagamentosdoDia);
             var client = new WebClient();
 
             client.Headers.Add(HttpRequestHeader.ContentType, "text/plain");
-            client.Headers.Add(HttpRequestHeader.Authorization, "Bearer " + Tokem.jwt);
+            //client.Headers.Add(HttpRequestHeader.Authorization, "Bearer " + Tokem.jwt);
 
             var JSON = Encoding.UTF8.GetString(client.DownloadData(URL));
             return JsonConvert.DeserializeObject<List<PaymentModel>>(JSON).Where(x=> x.cdbancoorigem == BancoOrigem || x.transactioncode == null).ToList();

@@ -7,5 +7,13 @@ namespace BankService.Models
 {
     public class ContactsModel
     {
+        public int id { get; set; }
+        public string nick_name { get; set; }
+        public string name { get; set; }
+        public string bank { get; set; }
+        public string agency { get; set; }
+        public string account { get; set; }
+        public string email { get; set; }
+        public string document { get; set; }
     }
 }

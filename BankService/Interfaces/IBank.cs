@@ -11,8 +11,8 @@ namespace BankService.Interfaces
         public String OriginBankCode { get; set; }
 
         AccountModel GetAccountDetail();
-        ContactsModel IncludeContact(ContactsModel contact);
-        ContactsModel GetContact(String Document);
+        List<ContactsModel> IncludeContact(ContactsModel contact);
+        List<ContactsModel> GetContact(String Document, String Bank, String agency, String account);
         TEDSendModel TED(TEDModel ted);
         TransferbetweenaccountsSendModel Transferbetweenaccounts(TransferbetweenaccountsModel Transferbetweenaccounts);
     }

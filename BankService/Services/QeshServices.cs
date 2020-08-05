@@ -48,7 +48,7 @@ namespace BankService.Services
 
         public QeshToken GetQeshToken(string usuario, string senha)
         {
-            String URL = String.Format("{0}(1)", URLQesh, ApiQeshTokem);
+            String URL = String.Format("{0}{1}", URLQesh, ApiQeshTokem);
             var wr = (HttpWebRequest)WebRequest.Create(URL);
             wr.Proxy = null;
             wr.Method = "POST";
@@ -79,7 +79,7 @@ namespace BankService.Services
         {
             var Tokem = GetQeshToken(QeshUser, QeshPass);
 
-            String URL = String.Format("{0}(1)", URLQesh, ApiQeshAccountDetail);
+            String URL = String.Format("{0}{1}", URLQesh, ApiQeshAccountDetail);
             var client = new WebClient();
 
             client.Headers.Add(HttpRequestHeader.ContentType, "text/plain");
@@ -89,26 +89,32 @@ namespace BankService.Services
             var s = tr.ReadToEnd();
             return JsonConvert.DeserializeObject<AccountModel>(s);
         }
-        public ContactsModel GetContact(String Document)
+        public List<ContactsModel> GetContact(String Document, String Bank, String agency, String account)
         {
             var Tokem = GetQeshToken(QeshUser, QeshPass);
 
-            String URL = String.Format("{0}(1)", URLQesh, ApiQeshContacts);
+            String URL = String.Format("{0}{1}", URLQesh, ApiQeshContacts);
             var client = new WebClient();
 
             client.Headers.Add(HttpRequestHeader.ContentType, "text/plain");
             client.Headers.Add(HttpRequestHeader.Authorization, "Bearer " + Tokem.jwt);
 
             using TextReader tr = new StreamReader(Encoding.UTF8.GetString(client.DownloadData(URL)));
-            var s = tr.ReadToEnd();
-            return JsonConvert.DeserializeObject<ContactsModel>(s);
+            //var s = tr.ReadToEnd();
+            //return JsonConvert.DeserializeObject<ContactsModel>(s);
+
+            var JSON = Encoding.UTF8.GetString(client.DownloadData(URL));
+
+            //Não coloquei o filtro por banco por que a API traz o nome do banco e não o código. Precisamos pedir que retornem o código. * Anderson
+            return JsonConvert.DeserializeObject<List<ContactsModel>>(JSON).Where(x=> x.document == Document && x.agency == agency && x.account == account).ToList();
+
         }
         public TEDSendModel TED(TEDModel ted)
         {
             try
             {
                 var Tokem = GetQeshToken(QeshUser, QeshPass);
-                String URL = String.Format("{0}(1)", URLQesh, ApiQeshTED);
+                String URL = String.Format("{0}{1}", URLQesh, ApiQeshTED);
 
                 var wr = (HttpWebRequest)WebRequest.Create(URL);
                 wr.Proxy = null;
@@ -142,7 +148,7 @@ namespace BankService.Services
             try
             {
                 var Tokem = GetQeshToken(QeshUser, QeshPass);
-                String URL = String.Format("{0}(1)", URLQesh, ApiQeshTransferenciaEntreContas);
+                String URL = String.Format("{0}{1}", URLQesh, ApiQeshTransferenciaEntreContas);
 
                 var wr = (HttpWebRequest)WebRequest.Create(URL);
                 wr.Proxy = null;
@@ -171,11 +177,11 @@ namespace BankService.Services
                 throw ex;
             }
         }
-        public ContactsModel IncludeContact(ContactsModel contact)
+        public List<ContactsModel> IncludeContact(ContactsModel contact)
         {
             var Tokem = GetQeshToken(QeshUser, QeshPass);
 
-            String URL = String.Format("{0}(1)", URLQesh, ApiQeshIncludeContacts);
+            String URL = String.Format("{0}{1}", URLQesh, ApiQeshIncludeContacts);
             var client = new WebClient();
 
             client.Headers.Add(HttpRequestHeader.ContentType, "text/plain");
@@ -183,7 +189,8 @@ namespace BankService.Services
 
             using TextReader tr = new StreamReader(Encoding.UTF8.GetString(client.DownloadData(URL)));
             var s = tr.ReadToEnd();
-            return JsonConvert.DeserializeObject<ContactsModel>(s);
+            return JsonConvert.DeserializeObject<List<ContactsModel>>(s).ToList();
+
         }
     }
 }
