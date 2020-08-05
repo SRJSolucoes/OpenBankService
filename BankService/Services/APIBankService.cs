@@ -13,7 +13,6 @@ namespace BankService.Services
         {
             foreach (PaymentModel payment in operadora.PaymentsoftheDay(bank.OriginBankCode))
             {
-
                 var TransferContact = bank.GetContact(payment.documento, payment.cdbancodestino, payment.agenciadestino, payment.contadestino); 
                 if (TransferContact == null)
                 {
