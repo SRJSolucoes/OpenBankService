@@ -91,6 +91,47 @@ namespace BankService.Services
         }
         public List<ContactsModel> GetContact(String Document, String Bank, String agency, String account)
         {
+            try
+            {
+                var _account = GetAccountDetail();
+                
+                TEDModel Request = new TEDModel()
+                {
+                    account_id = _account.User.id,
+                    password = QeshPass,
+                    value = 0
+                };
+
+                var Tokem = GetQeshToken(QeshUser, QeshPass);
+                String URL = String.Format("{0}{1}", URLQesh, ApiQeshTED);
+
+                var wr = (HttpWebRequest)WebRequest.Create(URL);
+                wr.Proxy = null;
+                wr.Method = "POST";
+                wr.Accept = "application/json";
+                wr.ContentType = "application/json";
+
+                wr.Headers.Add(HttpRequestHeader.ContentType, "text/plain");
+                wr.Headers.Add(HttpRequestHeader.Authorization, "Bearer " + Tokem.jwt);
+
+                using (TextWriter tw = new StreamWriter(wr.GetRequestStream()))
+                {
+
+                    string str = JsonConvert.SerializeObject(Request);
+                    tw.Write(str);
+                }
+
+                var resp = wr.GetResponse();
+
+                using TextReader tr = new StreamReader(resp.GetResponseStream());
+                var s = tr.ReadToEnd();
+                return JsonConvert.DeserializeObject<List<ContactsModel>>(s).Where(x => x.document == Document && x.agency == agency && x.account == account).ToList();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+/*
             var Tokem = GetQeshToken(QeshUser, QeshPass);
 
             String URL = String.Format("{0}{1}", URLQesh, ApiQeshContacts);
@@ -99,14 +140,19 @@ namespace BankService.Services
             client.Headers.Add(HttpRequestHeader.ContentType, "text/plain");
             client.Headers.Add(HttpRequestHeader.Authorization, "Bearer " + Tokem.jwt);
 
-            using TextReader tr = new StreamReader(Encoding.UTF8.GetString(client.DownloadData(URL)));
-            //var s = tr.ReadToEnd();
-            //return JsonConvert.DeserializeObject<ContactsModel>(s);
+            using (TextWriter tw = new StreamWriter(wr.GetRequestStream()))
+            {
 
-            var JSON = Encoding.UTF8.GetString(client.DownloadData(URL));
+                string str = JsonConvert.SerializeObject(ted);
+                tw.Write(str);
+            }
+
+            var resp = wr.GetResponse();
+
 
             //Não coloquei o filtro por banco por que a API traz o nome do banco e não o código. Precisamos pedir que retornem o código. * Anderson
-            return JsonConvert.DeserializeObject<List<ContactsModel>>(JSON).Where(x=> x.document == Document && x.agency == agency && x.account == account).ToList();
+            return JsonConvert.DeserializeObject<List<ContactsModel>>(s).Where(x=> x.document == Document && x.agency == agency && x.account == account).ToList();
+            */
 
         }
         public TEDSendModel TED(TEDModel ted)
