@@ -16,13 +16,16 @@ namespace BankService.Services
         #region Constantes
         public const string URLQesh = "https://api.qesh.ai";
         public const string ApiQeshAccountDetail = "/api/v1/account";
-        public const string ApiQeshContacts = "/api/v1/bank_account";
+        public const string ApiQeshContacts = "api/v1/users/contacts";
+        public const string ApiContacts = "/api/v1/bank_account";
         public const string ApiQeshIncludeContacts = "/api/v1/bank_account/create";
         public const string ApiQeshTED = "/api/v1/account/to_bank_transfer";
         public const string ApiQeshTransferenciaEntreContas = "/api/v1/account/transfer_to_account";
         public const string ApiQeshTokem = "/api/v1/user_token";
         public const string QeshUser = "eduardo@srjsolucoes.com.br";
         public const string QeshPass = "Valentina3010";
+        public const string QeshPass4Dig = "4506";
+
         #endregion
 
         #region QeshToken
@@ -89,73 +92,82 @@ namespace BankService.Services
             var s = tr.ReadToEnd();
             return JsonConvert.DeserializeObject<AccountModel>(s);
         }
-        public List<ContactsModel> GetContact(String Document, String Bank, String agency, String account)
+        //public List<ContactsModel> GetContact(String Document, String Bank, String agency, String account)
+        public ContactsModel GetContact(String Document, String Bank, String agency, String account)
         {
             try
             {
-                var _account = GetAccountDetail();
-                
-                TEDModel Request = new TEDModel()
-                {
-                    account_id = _account.User.id,
-                    password = QeshPass,
-                    value = 0
-                };
-
                 var Tokem = GetQeshToken(QeshUser, QeshPass);
-                String URL = String.Format("{0}{1}", URLQesh, ApiQeshTED);
+                String URL = String.Format("{0}{1}", URLQesh, ApiContacts);
 
                 var wr = (HttpWebRequest)WebRequest.Create(URL);
                 wr.Proxy = null;
-                wr.Method = "POST";
+                wr.Method = "GET";
                 wr.Accept = "application/json";
                 wr.ContentType = "application/json";
 
                 wr.Headers.Add(HttpRequestHeader.ContentType, "text/plain");
                 wr.Headers.Add(HttpRequestHeader.Authorization, "Bearer " + Tokem.jwt);
 
-                using (TextWriter tw = new StreamWriter(wr.GetRequestStream()))
-                {
-
-                    string str = JsonConvert.SerializeObject(Request);
-                    tw.Write(str);
-                }
-
                 var resp = wr.GetResponse();
 
                 using TextReader tr = new StreamReader(resp.GetResponseStream());
                 var s = tr.ReadToEnd();
-                return JsonConvert.DeserializeObject<List<ContactsModel>>(s).Where(x => x.document == Document && x.agency == agency && x.account == account).ToList();
+
+                var contacts = JsonConvert.DeserializeObject<ContactsModel>(s);
+
+                var x = contacts.bank_accounts.Where(e => e.document == Document &&
+                                                         e.agency == agency &&
+                                                         e.account == account
+                                                   ).ToList();
+
+                return contacts;
             }
             catch (Exception ex)
             {
                 throw ex;
             }
-/*
-            var Tokem = GetQeshToken(QeshUser, QeshPass);
-
-            String URL = String.Format("{0}{1}", URLQesh, ApiQeshContacts);
-            var client = new WebClient();
-
-            client.Headers.Add(HttpRequestHeader.ContentType, "text/plain");
-            client.Headers.Add(HttpRequestHeader.Authorization, "Bearer " + Tokem.jwt);
-
-            using (TextWriter tw = new StreamWriter(wr.GetRequestStream()))
-            {
-
-                string str = JsonConvert.SerializeObject(ted);
-                tw.Write(str);
-            }
-
-            var resp = wr.GetResponse();
-
-
-            //Não coloquei o filtro por banco por que a API traz o nome do banco e não o código. Precisamos pedir que retornem o código. * Anderson
-            return JsonConvert.DeserializeObject<List<ContactsModel>>(s).Where(x=> x.document == Document && x.agency == agency && x.account == account).ToList();
-            */
 
         }
-        public TEDSendModel TED(TEDModel ted)
+
+        public List<AccountModel> GetContactQesh(String Document)
+        {
+            try
+            {
+                //https://api.qesh.ai/api/v1/users/accounts?document=${document} 
+
+                var Tokem = GetQeshToken(QeshUser, QeshPass);
+                //String URL = String.Format("{0}{1}{2}{3}}", URLQesh, ApiQeshAccountDetail, "?document=${", Document);
+
+                //String URL = String.Format("https://api.qesh.ai/api/v1/users/accounts?document=${{0}}", Document.Replace(".", "").Replace("-", "").Replace("/", ""));
+                String URL = "https://api.qesh.ai/api/v1/users/accounts?document="+Document.Replace(".", "").Replace("-", "").Replace("/", "");
+
+                var wr = (HttpWebRequest)WebRequest.Create(URL);
+                wr.Proxy = null;
+                wr.Method = "GET";
+                wr.Accept = "application/json";
+                wr.ContentType = "application/json";
+
+                wr.Headers.Add(HttpRequestHeader.ContentType, "text/plain");
+                wr.Headers.Add(HttpRequestHeader.Authorization, "Bearer " + Tokem.jwt);
+
+                var resp = wr.GetResponse();
+
+                using TextReader tr = new StreamReader(resp.GetResponseStream());
+                var s = tr.ReadToEnd();
+                
+                return JsonConvert.DeserializeObject<List<AccountModel>>(s).ToList();
+}
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+
+
+        public TEDSendModel TED(int id_account, decimal value)
         {
             try
             {
@@ -167,6 +179,15 @@ namespace BankService.Services
                 wr.Method = "POST";
                 wr.Accept = "application/json";
                 wr.ContentType = "application/json";
+
+                float valueFloat = Convert.ToSingle(value);
+
+                TEDModel ted = new TEDModel()
+                {
+                    id = id_account.ToString(),
+                    value = valueFloat,
+                    password = QeshPass4Dig
+                };
 
                 wr.Headers.Add(HttpRequestHeader.ContentType, "text/plain");
                 wr.Headers.Add(HttpRequestHeader.Authorization, "Bearer " + Tokem.jwt);
@@ -177,7 +198,7 @@ namespace BankService.Services
                     string str = JsonConvert.SerializeObject(ted);
                     tw.Write(str);
                 }
-
+                //[TA DANDO ERRO AQUI.]
                 var resp = wr.GetResponse();
 
                 using TextReader tr = new StreamReader(resp.GetResponseStream());
@@ -223,7 +244,7 @@ namespace BankService.Services
                 throw ex;
             }
         }
-        public List<ContactsModel> IncludeContact(ContactsModel contact)
+        public ContactsModel IncludeContact(ContactsModel contact)
         {
             var Tokem = GetQeshToken(QeshUser, QeshPass);
 
@@ -235,7 +256,7 @@ namespace BankService.Services
 
             using TextReader tr = new StreamReader(Encoding.UTF8.GetString(client.DownloadData(URL)));
             var s = tr.ReadToEnd();
-            return JsonConvert.DeserializeObject<List<ContactsModel>>(s).ToList();
+            return JsonConvert.DeserializeObject<ContactsModel>(s);
 
         }
     }

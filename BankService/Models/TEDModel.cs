@@ -7,7 +7,7 @@ namespace BankService.Models
 {
     public class TEDModel
     {
-        public int account_id { get; set; }
+        public string id { get; set; }
         public float value { get; set; }
         public string password { get; set; }
     }

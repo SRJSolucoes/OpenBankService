@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 namespace BankService.Models
 {
-    public class ContactsModel
+    public class ContactQeshModel
     {
         public int status { get; set; }
-        public ISet<ContactModelReturn> bank_accounts { get; set; }
-    }
+        public ISet<ContactQeshModelReturn> ContactQeshModelReturn { get; set; }
+     }
 }
