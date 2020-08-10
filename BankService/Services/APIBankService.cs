@@ -18,6 +18,7 @@ namespace BankService.Services
                     var TransferContact = bank.GetContact(payment.documento, payment.cdbancodestino, payment.agenciadestino, payment.contadestino);
                     if (TransferContact == null)
                     {
+                        
                         TransferContact = bank.IncludeContact(new ContactsModel() { });
                     }
 
@@ -29,7 +30,8 @@ namespace BankService.Services
                 {
                     var TransferContactQesh = bank.GetContactQesh(payment.documento);
                     //1. Recuperar ID da conta de destino
-                    bank.Transferbetweenaccounts(new TransferbetweenaccountsModel());
+                    
+                    //bank.Transferbetweenaccounts('1',1);
                 }
  
                 payment.status = "E";

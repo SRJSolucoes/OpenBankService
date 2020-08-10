@@ -8,7 +8,7 @@ namespace BankService.Models
     public class TEDModel
     {
         public string id { get; set; }
-        public float value { get; set; }
+        public decimal value { get; set; }
         public string password { get; set; }
     }
 }

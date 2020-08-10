@@ -92,7 +92,7 @@ namespace BankService.Services
             var s = tr.ReadToEnd();
             return JsonConvert.DeserializeObject<AccountModel>(s);
         }
-        //public List<ContactsModel> GetContact(String Document, String Bank, String agency, String account)
+
         public ContactsModel GetContact(String Document, String Bank, String agency, String account)
         {
             try
@@ -130,16 +130,12 @@ namespace BankService.Services
 
         }
 
-        public List<AccountModel> GetContactQesh(String Document)
+        public AccountModel GetContactQesh(String Document)
         {
             try
             {
-                //https://api.qesh.ai/api/v1/users/accounts?document=${document} 
 
                 var Tokem = GetQeshToken(QeshUser, QeshPass);
-                //String URL = String.Format("{0}{1}{2}{3}}", URLQesh, ApiQeshAccountDetail, "?document=${", Document);
-
-                //String URL = String.Format("https://api.qesh.ai/api/v1/users/accounts?document=${{0}}", Document.Replace(".", "").Replace("-", "").Replace("/", ""));
                 String URL = "https://api.qesh.ai/api/v1/users/accounts?document="+Document.Replace(".", "").Replace("-", "").Replace("/", "");
 
                 var wr = (HttpWebRequest)WebRequest.Create(URL);
@@ -156,7 +152,7 @@ namespace BankService.Services
                 using TextReader tr = new StreamReader(resp.GetResponseStream());
                 var s = tr.ReadToEnd();
                 
-                return JsonConvert.DeserializeObject<List<AccountModel>>(s).ToList();
+                return JsonConvert.DeserializeObject<AccountModel>(s);
 }
             catch (Exception ex)
             {
@@ -174,20 +170,27 @@ namespace BankService.Services
                 var Tokem = GetQeshToken(QeshUser, QeshPass);
                 String URL = String.Format("{0}{1}", URLQesh, ApiQeshTED);
 
+                ServicePointManager.ServerCertificateValidationCallback = delegate { return false; }; 
+                
                 var wr = (HttpWebRequest)WebRequest.Create(URL);
                 wr.Proxy = null;
                 wr.Method = "POST";
-                wr.Accept = "application/json";
+                wr.Accept = "*/*";
                 wr.ContentType = "application/json";
-
-                float valueFloat = Convert.ToSingle(value);
 
                 TEDModel ted = new TEDModel()
                 {
                     id = id_account.ToString(),
-                    value = valueFloat,
+                    value = value,
                     password = QeshPass4Dig
                 };
+
+                ASCIIEncoding encoding = new ASCIIEncoding();
+                
+                var tedbytes = encoding.GetBytes(ted.ToString());
+
+                wr.ContentLength = tedbytes.Length;
+                wr.Host = "www.qesh.ai";
 
                 wr.Headers.Add(HttpRequestHeader.ContentType, "text/plain");
                 wr.Headers.Add(HttpRequestHeader.Authorization, "Bearer " + Tokem.jwt);
@@ -210,7 +213,7 @@ namespace BankService.Services
                 throw ex;
             }
         }
-        public TransferbetweenaccountsSendModel Transferbetweenaccounts(TransferbetweenaccountsModel Transferbetweenaccounts)
+        public TransferbetweenaccountsSendModel Transferbetweenaccounts(int id_account, decimal value)
         {
             try
             {
@@ -225,6 +228,13 @@ namespace BankService.Services
 
                 wr.Headers.Add(HttpRequestHeader.ContentType, "text/plain");
                 wr.Headers.Add(HttpRequestHeader.Authorization, "Bearer " + Tokem.jwt);
+
+                TEDModel Transferbetweenaccounts = new TEDModel()
+                {
+                    id = id_account.ToString(),
+                    value = value,
+                    password = QeshPass4Dig
+                };
 
                 using (TextWriter tw = new StreamWriter(wr.GetRequestStream()))
                 {

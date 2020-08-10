@@ -5,9 +5,8 @@ using System.Threading.Tasks;
 
 namespace BankService.Models
 {
-    public class AccountModel
+    public class Teste
     {
-        public int status { get; set; }
-        public ISet<UserAccountModel> users { get; set; }
+
     }
 }

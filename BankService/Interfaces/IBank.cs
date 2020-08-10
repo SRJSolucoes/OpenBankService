@@ -13,8 +13,8 @@ namespace BankService.Interfaces
         AccountModel GetAccountDetail();
         ContactsModel IncludeContact(ContactsModel contact);
         ContactsModel GetContact(String Document, String Bank, String agency, String account);
-        List<AccountModel> GetContactQesh(String Document);
+        AccountModel GetContactQesh(String Document);
         TEDSendModel TED(int id_account, decimal value);
-        TransferbetweenaccountsSendModel Transferbetweenaccounts(TransferbetweenaccountsModel Transferbetweenaccounts);
+        TransferbetweenaccountsSendModel Transferbetweenaccounts(int id_account, decimal value);
     }
 }
