@@ -46,8 +46,7 @@ namespace BankService.Models
         public string bill_tax { get; set; }
 
         public UserAliasAccountModel alias { get; set; }
-
-        public Teste related_users { get; set; }
+        public string related_users { get; set; }
         public ISet<UserAccountDocument> documents { get; set; }
         public UserAccountRegistration registration { get; set; }
 

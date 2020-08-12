@@ -30,14 +30,12 @@ namespace BankService.Services
                 {
                     var TransferContactQesh = bank.GetContactQesh(payment.documento);
                     //1. Recuperar ID da conta de destino
-                    
                     //bank.Transferbetweenaccounts('1',1);
                 }
  
                 payment.status = "E";
                 payment.transactioncode = "XXXXXX";
-
-                operadora.UpdatePayment(payment);
+                //operadora.UpdatePayment(payment);
             }
         }
 

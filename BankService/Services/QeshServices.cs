@@ -34,12 +34,10 @@ namespace BankService.Services
             public string status { get; set; }
             public string jwt { get; set; }
         }
-
         public class QeshauthMaster
         {
             public QeshauthChield auth { get; set; }
         }
-
         public class QeshauthChield
         {
             public string email { get; set; }
@@ -77,7 +75,6 @@ namespace BankService.Services
                 return JsonConvert.DeserializeObject<QeshToken>(s);
             }
         }
-
         public AccountModel GetAccountDetail()
         {
             var Tokem = GetQeshToken(QeshUser, QeshPass);
@@ -92,7 +89,6 @@ namespace BankService.Services
             var s = tr.ReadToEnd();
             return JsonConvert.DeserializeObject<AccountModel>(s);
         }
-
         public ContactsModel GetContact(String Document, String Bank, String agency, String account)
         {
             try
@@ -129,7 +125,6 @@ namespace BankService.Services
             }
 
         }
-
         public AccountModel GetContactQesh(String Document)
         {
             try
@@ -161,8 +156,6 @@ namespace BankService.Services
 
         }
 
-
-
         public TEDSendModel TED(int id_account, decimal value)
         {
             try
@@ -190,7 +183,7 @@ namespace BankService.Services
                 var tedbytes = encoding.GetBytes(ted.ToString());
 
                 wr.ContentLength = tedbytes.Length;
-                wr.Host = "www.qesh.ai";
+                wr.Host = "api.qesh.ai";
 
                 wr.Headers.Add(HttpRequestHeader.ContentType, "text/plain");
                 wr.Headers.Add(HttpRequestHeader.Authorization, "Bearer " + Tokem.jwt);

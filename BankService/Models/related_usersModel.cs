@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace BankService.Models
 {
-    public class Teste
+    public class related_usersModel
     {
 
     }
