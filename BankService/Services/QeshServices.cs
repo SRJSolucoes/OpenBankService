@@ -155,22 +155,22 @@ namespace BankService.Services
             }
 
         }
-
+      
         public TEDSendModel TED(int id_account, decimal value)
         {
-            try
+            var Tokem = GetQeshToken(QeshUser, QeshPass);
+            String URL = String.Format("{0}{1}", URLQesh, ApiQeshTED);
+
+            var wr = (HttpWebRequest)WebRequest.Create(URL);
+            wr.Proxy = null;
+            wr.Method = "POST";
+            wr.Accept = "application/json";
+            wr.ContentType = "application/json";
+
+            wr.Headers.Add(HttpRequestHeader.Authorization, "Bearer " + Tokem.jwt);
+
+            using (TextWriter tw = new StreamWriter(wr.GetRequestStream()))
             {
-                var Tokem = GetQeshToken(QeshUser, QeshPass);
-                String URL = String.Format("{0}{1}", URLQesh, ApiQeshTED);
-
-                ServicePointManager.ServerCertificateValidationCallback = delegate { return false; }; 
-                
-                var wr = (HttpWebRequest)WebRequest.Create(URL);
-                wr.Proxy = null;
-                wr.Method = "POST";
-                wr.Accept = "*/*";
-                wr.ContentType = "application/json";
-
                 TEDModel ted = new TEDModel()
                 {
                     id = id_account.ToString(),
@@ -178,34 +178,19 @@ namespace BankService.Services
                     password = QeshPass4Dig
                 };
 
-                ASCIIEncoding encoding = new ASCIIEncoding();
-                
-                var tedbytes = encoding.GetBytes(ted.ToString());
+                string str = JsonConvert.SerializeObject(ted);
+                tw.Write(str);
+            }
 
-                wr.ContentLength = tedbytes.Length;
-                wr.Host = "api.qesh.ai";
+            var resp = wr.GetResponse();
 
-                wr.Headers.Add(HttpRequestHeader.ContentType, "text/plain");
-                wr.Headers.Add(HttpRequestHeader.Authorization, "Bearer " + Tokem.jwt);
-
-                using (TextWriter tw = new StreamWriter(wr.GetRequestStream()))
-                {
-
-                    string str = JsonConvert.SerializeObject(ted);
-                    tw.Write(str);
-                }
-                //[TA DANDO ERRO AQUI.]
-                var resp = wr.GetResponse();
-
-                using TextReader tr = new StreamReader(resp.GetResponseStream());
+            using (TextReader tr = new StreamReader(resp.GetResponseStream()))
+            {
                 var s = tr.ReadToEnd();
                 return JsonConvert.DeserializeObject<TEDSendModel>(s);
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
         }
+
         public TransferbetweenaccountsSendModel Transferbetweenaccounts(int id_account, decimal value)
         {
             try
