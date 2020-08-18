@@ -10,5 +10,6 @@ namespace BankService.Interfaces
     {
         public List<PaymentModel> PaymentsoftheDay(String BancoOrigem);
         public void UpdatePayment(PaymentModel Payment);
+        public void LogPayment(PaymentModel Payment, string message);
     }
 }

@@ -16,6 +16,8 @@ namespace BankService.Models
 
         public DateTime dataregistro { get; set; }
 
+        public String transactioncode { get; set; }
+        
         public UsuarioIDModel usuario { get; set; }
 
         public PaymentIDModel pagamento { get; set; }

@@ -82,7 +82,6 @@ namespace BankService.Services
             String URL = String.Format("{0}{1}", URLQesh, ApiQeshAccountDetail);
             var client = new WebClient();
 
-            client.Headers.Add(HttpRequestHeader.ContentType, "text/plain");
             client.Headers.Add(HttpRequestHeader.Authorization, "Bearer " + Tokem.jwt);
 
             using TextReader tr = new StreamReader(Encoding.UTF8.GetString(client.DownloadData(URL)));
@@ -102,8 +101,7 @@ namespace BankService.Services
                 wr.Accept = "application/json";
                 wr.ContentType = "application/json";
 
-                wr.Headers.Add(HttpRequestHeader.ContentType, "text/plain");
-                wr.Headers.Add(HttpRequestHeader.Authorization, "Bearer " + Tokem.jwt);
+               wr.Headers.Add(HttpRequestHeader.Authorization, "Bearer " + Tokem.jwt);
 
                 var resp = wr.GetResponse();
 
@@ -187,7 +185,15 @@ namespace BankService.Services
             using (TextReader tr = new StreamReader(resp.GetResponseStream()))
             {
                 var s = tr.ReadToEnd();
-                return JsonConvert.DeserializeObject<TEDSendModel>(s);
+                var TEDMsg = JsonConvert.DeserializeObject<TEDMsgModel>(s);
+                var TEDSend = JsonConvert.DeserializeObject<TEDSendModel>(s);
+
+                if (TEDMsg.status == 400)
+                {
+                    throw new System.Exception(TEDMsg.message);
+                } 
+
+                return TEDSend;
             }
         }
 

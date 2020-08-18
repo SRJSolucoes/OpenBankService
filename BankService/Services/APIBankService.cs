@@ -13,29 +13,36 @@ namespace BankService.Services
         {
             foreach (PaymentModel payment in operadora.PaymentsoftheDay(bank.OriginBankCode))
             {
-                if (payment.cdbancodestino != payment.cdbancoorigem)
+                try
                 {
-                    var TransferContact = bank.GetContact(payment.documento, payment.cdbancodestino, payment.agenciadestino, payment.contadestino);
-                    if (TransferContact == null)
+
+                    if (payment.cdbancodestino != payment.cdbancoorigem)
                     {
-                        
-                        TransferContact = bank.IncludeContact(new ContactsModel() { });
+                        var TransferContact = bank.GetContact(payment.documento, payment.cdbancodestino, payment.agenciadestino, payment.contadestino);
+                        if (TransferContact == null)
+                        {
+
+                            TransferContact = bank.IncludeContact(new ContactsModel() { });
+                        }
+
+                        var bank_account = TransferContact.bank_accounts.First();
+                        bank.TED(bank_account.id, payment.valor);
+                    }
+                    else
+                    {
+                        var TransferContactQesh = bank.GetContactQesh(payment.documento);
+                        //1. Recuperar ID da conta de destino
+                        //bank.Transferbetweenaccounts('1',1);
                     }
 
-                    var bank_account = TransferContact.bank_accounts.First();
-
-                    bank.TED(bank_account.id, payment.valor);
+                    payment.status = "E";
+                    payment.transactioncode = "XXXXXX";
+                    //operadora.UpdatePayment(payment);
                 }
-                else
+                catch (Exception ex)
                 {
-                    var TransferContactQesh = bank.GetContactQesh(payment.documento);
-                    //1. Recuperar ID da conta de destino
-                    //bank.Transferbetweenaccounts('1',1);
+                    operadora.LogPayment(payment, ex.Message);
                 }
- 
-                payment.status = "E";
-                payment.transactioncode = "XXXXXX";
-                //operadora.UpdatePayment(payment);
             }
         }
 

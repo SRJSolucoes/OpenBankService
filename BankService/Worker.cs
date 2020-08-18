@@ -43,7 +43,7 @@ namespace BankService
 
                 try
                 {
-                   _logger.LogInformation("Worker executando em: {time}", DateTimeOffset.Now);
+                    _logger.LogInformation("Worker executando em: {time}", DateTimeOffset.Now);
 
                     // Fazer uma rorina de Schedule disso, para executar quantas vezes for schedulado por dia
                     BankService.MakeDayTransfers(Operator, Bank);
