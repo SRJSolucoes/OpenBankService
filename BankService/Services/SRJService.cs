@@ -19,7 +19,7 @@ namespace BankService.Services
         public const string SRJUser = "eduardo@gmail.com";
         public const string SRJPass = "12345";
 
-        public const string URLSRJ = "http://localhost:57534";
+        public const string URLSRJ = "http://localhost:57334";
         //public const string SRJUser = "eduardo@srjsolucoes.com.br";
         //public const string SRJPass = "Valentina3010";
 
@@ -65,8 +65,8 @@ namespace BankService.Services
         {
             var token = GetSRJToken(SRJUser, SRJPass);
 
-            String URL = String.Format("{0}{1}", URLSRJ, "/api/Pagamento/GetPagamentosEmAbertoLast");
-            //String URL = String.Format("{0}{1}", URLSRJ, ApiSRJPagamentosdoDia);
+            //String URL = String.Format("{0}{1}", URLSRJ, "/api/Pagamento/GetPagamentosEmAbertoLast");
+            String URL = String.Format("{0}{1}", URLSRJ, ApiSRJPagamentosdoDia);
             var client = new WebClient();
 
             client.Headers.Add(HttpRequestHeader.ContentType, "text/plain");
