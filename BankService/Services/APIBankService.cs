@@ -1,5 +1,6 @@
 ﻿using BankService.Interfaces;
 using BankService.Models;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,41 +10,68 @@ namespace BankService.Services
 {
     public class APIBankService : IBankService
     {
-        public void MakeDayTransfers(IOperadora operadora, IBank bank)
+        public void MakeDayTransfers(ILogger logger, IOperadora operadora, IBank bank)
         {
+            // pegando apenas 10 pagamentos sem filtro para os testes.
             foreach (PaymentModel payment in operadora.PaymentsoftheDay(bank.OriginBankCode))
             {
                 try
                 {
-
-                    if (payment.cdbancodestino != payment.cdbancoorigem)
+                    if (payment.cdbancodestino != payment.cdbancoorigem) 
                     {
-                        var TransferContact = bank.GetContact(payment.documento, payment.cdbancodestino, payment.agenciadestino, payment.contadestino);
-                        if (TransferContact == null)
+                        var destinyContact = bank.GetContacts(payment.documento, payment.cdbancodestino, payment.agenciadestino, payment.contadestino);
+                        int contaId;
+                        if (destinyContact == null)
                         {
+                            ContactModel newContact = CreateContact(operadora, payment);
 
-                            TransferContact = bank.IncludeContact(new ContactsModel() { });
+                            newContact = bank.IncludeContact(newContact);
+                            contaId = (int)newContact.id;
+                        }
+                        else
+                        {
+                            contaId = destinyContact.id;
                         }
 
-                        var bank_account = TransferContact.bank_accounts.First();
-                        bank.TED(bank_account.id, payment.valor);
+                        var tedStatus = bank.TED(operadora, payment, contaId );
                     }
                     else
                     {
-                        var TransferContactQesh = bank.GetContactQesh(payment.documento);
-                        //1. Recuperar ID da conta de destino
-                        //bank.Transferbetweenaccounts('1',1);
+                        var qeshAccount = bank.GetContactQesh(payment.documento);
+                        var transferResult = bank.TransferBetweenAccounts(operadora, payment, qeshAccount.users[0].account_id);
+                        logger.LogInformation(transferResult.message);
                     }
-
-                    payment.status = "E";
-                    payment.transactioncode = "XXXXXX";
-                    //operadora.UpdatePayment(payment);
+                                        
                 }
                 catch (Exception ex)
                 {
+                    // Falta testar todo o fluxo
                     operadora.LogPayment(payment, ex.Message);
                 }
             }
+        }
+
+        private static ContactModel CreateContact(IOperadora operadora, PaymentModel payment)
+        {
+            int bankId;
+            Int32.TryParse(payment.cdbancodestino, out bankId);
+            var numberAccount = payment.contadestino.Substring(0, payment.contadestino.Length - 1);
+            var digitAccount = payment.contadestino.Substring(payment.contadestino.Length - 1);
+            var extraContactInfo = operadora.GetContactInfo(payment);
+            var firstName = extraContactInfo.nome.Split(" ")[0];
+
+            var newContact = new ContactModel()
+            {
+                bank_id = bankId,
+                agency_number = payment.agenciadestino,
+                account_number = numberAccount,
+                account_digit = digitAccount,
+                name = extraContactInfo.nome,
+                email = extraContactInfo.email,
+                nick_name = firstName,
+                document = payment.documento
+            };
+            return newContact;
         }
 
         public void LeituradeRetorno()
@@ -51,5 +79,11 @@ namespace BankService.Services
             throw new NotImplementedException();
         }
 
+        private String GetStatusPayment(TEDReturnModel tedSend)
+        {
+            return PaymentModel.StatusPayment(tedSend.statusTransfer);
+        }
+
     }
+
 }

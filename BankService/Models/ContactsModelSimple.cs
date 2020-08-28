@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace BankService.Models
 {
-    public class ContactModelReturn
+    public class ContactsModelSimple
     {
         public int id { get; set; }
         public string nick_name { get; set; }

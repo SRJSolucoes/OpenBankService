@@ -11,10 +11,11 @@ namespace BankService.Interfaces
         public String OriginBankCode { get; set; }
 
         AccountModel GetAccountDetail();
-        ContactsModel IncludeContact(ContactsModel contact);
-        ContactsModel GetContact(String Document, String Bank, String agency, String account);
-        AccountModel GetContactQesh(String Document);
-        TEDSendModel TED(int id_account, decimal value);
-        TransferbetweenaccountsSendModel Transferbetweenaccounts(int id_account, decimal value);
+        ContactModel IncludeContact(ContactModel contact);
+        ContactModel GetContact(String Document, String Bank, String agency, String account);
+        ContactsModelSimple GetContacts(String Document, String Bank, String agency, String account);
+        UserAccountEnvelope GetContactQesh(String Document);
+        TEDReturnModel TED(IOperadora operadora, PaymentModel payment, int id_account);
+        TransferBetweenAccountsEnvelope TransferBetweenAccounts(IOperadora operadora, PaymentModel payment, int id_account);
     }
 }

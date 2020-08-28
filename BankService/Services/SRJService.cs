@@ -3,6 +3,7 @@ using BankService.Models;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -18,12 +19,12 @@ namespace BankService.Services
         public const string SRJUser = "eduardo@gmail.com";
         public const string SRJPass = "12345";
 
-        public const string URLSRJ = "http://localhost:57334";
+        public const string URLSRJ = "http://localhost:57534";
         //public const string SRJUser = "eduardo@srjsolucoes.com.br";
         //public const string SRJPass = "Valentina3010";
 
         public const string ApiSRJPagamentosdoDia = "/api/Pagamento/GetPagamentosDoDia";
-        public const string ApiSRJAtualizaStatus = "api/pagamento/AlterStatus";
+        public const string ApiSRJAtualizaStatus = "/api/pagamento/AlterStatus";
         public const string ApiSRJTokem = "/oauth/login";
         public const string ApiSRJLogPagamento = "/api/Logpagamento";
 
@@ -50,9 +51,9 @@ namespace BankService.Services
             {
                 tw.Write("username=" + usuario + "&password=" + senha + "&grant_type=password");
             }
-            
+
             var resp = wr.GetResponse();
-            
+
             using (TextReader tr = new StreamReader(resp.GetResponseStream()))
             {
                 var s = tr.ReadToEnd();
@@ -60,18 +61,21 @@ namespace BankService.Services
             }
         }
 
-        public List<PaymentModel>PaymentsoftheDay(String BancoOrigem)
+        public List<PaymentModel> PaymentsoftheDay(String BancoOrigem)
         {
-            var Tokem = GetSRJToken(SRJUser, SRJPass);
+            var token = GetSRJToken(SRJUser, SRJPass);
 
-            String URL = String.Format("{0}{1}", URLSRJ, ApiSRJPagamentosdoDia);
+            String URL = String.Format("{0}{1}", URLSRJ, "/api/Pagamento/GetPagamentosEmAbertoLast");
+            //String URL = String.Format("{0}{1}", URLSRJ, ApiSRJPagamentosdoDia);
             var client = new WebClient();
 
             client.Headers.Add(HttpRequestHeader.ContentType, "text/plain");
-            client.Headers.Add(HttpRequestHeader.Authorization, "Bearer " + Tokem.access_token);
+            client.Headers.Add(HttpRequestHeader.Authorization, "Bearer " + token.access_token);
 
-            var JSON = Encoding.UTF8.GetString(client.DownloadData(URL));
-            return JsonConvert.DeserializeObject<List<PaymentModel>>(JSON).Where(x=> x.cdbancoorigem == BancoOrigem || x.transactioncode == null).ToList();
+            var resultData = Encoding.UTF8.GetString(client.DownloadData(URL));
+            var payments = JsonConvert.DeserializeObject<List<PaymentModel>>(resultData)
+                .Where(x => x.cdbancoorigem == BancoOrigem || x.transactioncode == null);
+            return payments.ToList();
         }
 
         public void LogPayment(PaymentModel Payment, string message)
@@ -86,21 +90,20 @@ namespace BankService.Services
             wr.ContentType = "application/json";
 
             wr.Headers.Add(HttpRequestHeader.Authorization, "Bearer " + Tokem.access_token);
-
+            // TODO: Revisar
             using (TextWriter tw = new StreamWriter(wr.GetRequestStream()))
             {
                 LogpagamentoModel logpagamento = new LogpagamentoModel()
                 {
                     idlogpagamento = 0,
                     datalog = DateTime.UtcNow,
-                    dataregistro = DateTime.UtcNow,
-                    codretorno = null,
-                    dsretorno = message,
+                    codretorno = "NULL",
                     status = Payment.status,
-                    pagamento = new PaymentIDModel() { idpagamento = Payment.idpagamento },
+                    dsretorno = message,
+                    dataregistro = DateTime.UtcNow,
                     transactioncode = null,
-                    //usuario = new UsuarioIDModel() { idusuario = 0 }
-                    usuario = null
+                    pagamento = new PaymentIDModel() { idpagamento = Payment.idpagamento },
+                    usuario = new UsuarioIDModel() { idusuario = 0 }
                 };
 
                 string str = JsonConvert.SerializeObject(logpagamento);
@@ -115,9 +118,76 @@ namespace BankService.Services
             }
         }
 
-        public void UpdatePayment(PaymentModel Payment)
+        public void UpdatePayment(PaymentModel Payment, String descricao)
         {
-            throw new NotImplementedException();
+            var token = GetSRJToken(SRJUser, SRJPass);
+            //{{baseUrl}}/api/pagamento/AlterStatus?id=<integer>&status=<string>&DescricaoLog=<string>
+            String URL = String.Format(
+                            "{0}{1}?id={2}&status={3}&descricaolog={4}",
+                            URLSRJ, ApiSRJAtualizaStatus, Payment.idpagamento, Payment.status, descricao
+                            );
+
+            var wr = (HttpWebRequest)WebRequest.Create(URL);
+            wr.Proxy = null;
+            wr.Method = "PUT";
+            wr.Accept = "application/json";
+            wr.ContentType = "application/json";
+
+            wr.Headers.Add(HttpRequestHeader.Authorization, "Bearer " + token.access_token);
+            // TODO: Revisar
+            using (TextWriter tw = new StreamWriter(wr.GetRequestStream()))
+            {                
+                string str = JsonConvert.SerializeObject(new Object { });
+                tw.Write(str);
+            }
+
+            var resp = wr.GetResponse();
+
+            using (TextReader tr = new StreamReader(resp.GetResponseStream()))
+            {
+                var s = tr.ReadToEnd();
+            }
+
+            //var resultData = Encoding.UTF8.GetString(client.DownloadData(URL));
+            ////var resultData = Encoding.UTF8.GetString(data);
+            //var payment = JsonConvert.DeserializeObject<PaymentModel>(resultData);
+
+        }
+
+        public BeneficiarioModel GetContactInfo(PaymentModel payment)
+        {
+            var token = GetSRJToken(SRJUser, SRJPass);
+            //{{baseUrl}}/api/pagamento/AlterStatus?id=<integer>&status=<string>&DescricaoLog=<string>
+            String URL = String.Format("{0}{1}", URLSRJ, "/api/Beneficiario/ByFilter");
+
+            var wr = (HttpWebRequest)WebRequest.Create(URL);
+            wr.Proxy = null;
+            wr.Method = "POST";
+            wr.Accept = "application/json";
+            wr.ContentType = "application/json";
+
+            wr.Headers.Add(HttpRequestHeader.Authorization, "Bearer " + token.access_token);
+            // TODO: Revisar
+            using (TextWriter tw = new StreamWriter(wr.GetRequestStream()))
+            {
+                var objeto = new { cpfBeneficiario = payment.documento };
+                string str = JsonConvert.SerializeObject(objeto);
+                tw.Write(str);
+            }
+
+            var resp = wr.GetResponse();
+
+            using (TextReader tr = new StreamReader(resp.GetResponseStream()))
+            {
+                var s = tr.ReadToEnd();
+                var list = JsonConvert.DeserializeObject<List<BeneficiarioModel>>(s);
+                var beneficiario = list.FirstOrDefault();
+                return beneficiario;
+            }
+
+            //var resultData = Encoding.UTF8.GetString(client.DownloadData(URL));
+            ////var resultData = Encoding.UTF8.GetString(data);
+            //var payment = JsonConvert.DeserializeObject<PaymentModel>(resultData);
         }
     }
 }

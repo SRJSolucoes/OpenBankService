@@ -5,7 +5,11 @@ using System.Threading.Tasks;
 
 namespace BankService.Models
 {
-    public class TransferbetweenaccountsSendModel
+    public class UserAccountEnvelope
     {
+        public int status { get; set; }
+        public IList<UserAccountModel> users { get; set; }
+
     }
+
 }

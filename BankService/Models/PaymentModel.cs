@@ -41,5 +41,35 @@ namespace BankService.Models
         public String transactioncode { get; set; }
         public LotepagamentoSimpleModel lotepagamento { get; set; }
         public ISet<LogpagamentoModel> Logpagamento { get; set; }
+
+        public static String StatusPayment(String statusTransfer)
+        {
+            // Processing
+            if (String.Compare(statusTransfer, "WAITING_PROCESSING", true) == 0)
+            {
+                return "E";
+            }
+
+            // Success
+            if (String.Compare(statusTransfer, "CREDIT_DONE", true) == 0
+                || String.Compare(statusTransfer, "SUCCESS_INCLUSION_DONE", true) == 0)
+            {
+                return "A";
+            }
+
+            // Falha
+            if (
+                String.Compare(statusTransfer, "REJECTED_REGISTER", true) == 0
+                || String.Compare(statusTransfer, "FAILED_CREDIT_NOT_DONE", true) == 0
+                || String.Compare(statusTransfer, "FAILED_INVALID_BENEFICIARY_ACCOUNT", true) == 0
+                || String.Compare(statusTransfer, "FAILED_INVALID_BENEFICIARY_AGENCY", true) == 0
+                || String.Compare(statusTransfer, "FAILED_INVALID_BENEFICIARY_SUBSCRIPTION_NUM_OR_TYPE", true) == 0
+                )
+            {
+                return "F";
+            }
+
+            return "N";
+        }
     }
 }

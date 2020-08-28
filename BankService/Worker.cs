@@ -46,9 +46,9 @@ namespace BankService
                     _logger.LogInformation("Worker executando em: {time}", DateTimeOffset.Now);
 
                     // Fazer uma rorina de Schedule disso, para executar quantas vezes for schedulado por dia
-                    BankService.MakeDayTransfers(Operator, Bank);
+                    BankService.MakeDayTransfers(_logger, Operator, Bank);
 
-                    resultado.Status = "Sucess";
+                    resultado.Status = "Success";
 
                     await Task.Delay(
                         _serviceConfigurations.Intervalo, stoppingToken);
