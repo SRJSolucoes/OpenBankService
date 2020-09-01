@@ -101,7 +101,7 @@ namespace BankService.Services
                     status = Payment.status,
                     dsretorno = message,
                     dataregistro = DateTime.UtcNow,
-                    transactioncode = null,
+                    transactioncode = Payment.transactioncode,
                     pagamento = new PaymentIDModel() { idpagamento = Payment.idpagamento },
                     usuario = new UsuarioIDModel() { idusuario = 0 }
                 };

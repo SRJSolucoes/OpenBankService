@@ -266,7 +266,7 @@ namespace BankService.Services
 
                 if (TransferResponse.status == 200 && TransferResponse.response != null)
                 {
-                    payment.status = StatusPayment.PagamentoRealizado.GetValue().ToString();
+                    payment.status = StatusPayment.EmProcessamento.GetValue().ToString();
                     payment.transactioncode = TransferResponse.response.transactionCode;
                     payment.datapagamento = TransferResponse.response.transactionDate;
                     operadora.UpdatePayment(payment, TransferResponse.response.description);
