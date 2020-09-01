@@ -1,4 +1,6 @@
-﻿using System;
+﻿using BankService.Entities.SRJ.Framework.Core.Enum;
+using BankService.Services;
+using System;
 using System.Collections.Generic;
 
 namespace BankService.Models
@@ -42,19 +44,19 @@ namespace BankService.Models
         public LotepagamentoSimpleModel lotepagamento { get; set; }
         public ISet<LogpagamentoModel> Logpagamento { get; set; }
 
-        public static String StatusPayment(String statusTransfer)
+        public static String getStatusPayment(String statusTransfer)
         {
             // Processing
             if (String.Compare(statusTransfer, "WAITING_PROCESSING", true) == 0)
             {
-                return "E";
+                return StatusPayment.EmProcessamento.GetValue().ToString();
             }
 
             // Success
             if (String.Compare(statusTransfer, "CREDIT_DONE", true) == 0
                 || String.Compare(statusTransfer, "SUCCESS_INCLUSION_DONE", true) == 0)
             {
-                return "A";
+                return StatusPayment.PagamentoRealizado.GetValue().ToString();
             }
 
             // Falha
@@ -66,10 +68,10 @@ namespace BankService.Models
                 || String.Compare(statusTransfer, "FAILED_INVALID_BENEFICIARY_SUBSCRIPTION_NUM_OR_TYPE", true) == 0
                 )
             {
-                return "F";
+                return StatusPayment.Rejeitado.GetValue().ToString();
             }
 
-            return "N";
+            return StatusPayment.Agendado.GetValue().ToString();
         }
     }
 }

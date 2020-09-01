@@ -1,4 +1,4 @@
-﻿using BankService.Entities;
+﻿using BankService.Entities.SRJ.Framework.Core.Enum;
 using BankService.Interfaces;
 using BankService.Models;
 using Newtonsoft.Json;
@@ -141,7 +141,6 @@ namespace BankService.Services
         {
             try
             {
-
                 var Tokem = GetQeshToken(QeshUser, QeshPass);
                 Document = Document.Replace(".", "").Replace("-", "").Replace("/", "");
                 var URLAPI = "https://api.qesh.ai/api/v1/users/accounts?document=";
@@ -170,7 +169,7 @@ namespace BankService.Services
 
         }
 
-        public TEDReturnModel TED(IOperadora operadora, PaymentModel payment, int id_account)
+        public TEDMsgModel TED(IOperadora operadora, PaymentModel payment, int id_account)
         {
             var Tokem = GetQeshToken(QeshUser, QeshPass);
             String URL = String.Format("{0}{1}", URLQesh, ApiQeshTED);
@@ -201,23 +200,22 @@ namespace BankService.Services
             using (TextReader tr = new StreamReader(resp.GetResponseStream()))
             {
                 var s = tr.ReadToEnd();
-                var TEDMsg = JsonConvert.DeserializeObject<TEDMsgModel>(s);
-                var TEDSend = JsonConvert.DeserializeObject<TEDReturnModel>(s);
+                var TEDResponse = JsonConvert.DeserializeObject<TEDMsgModel>(s);
 
-                if (TEDMsg.status == 400)
+                if (TEDResponse.status != 200 && TEDResponse.message != null)
                 {
-                    operadora.LogPayment(payment, TEDMsg.message);
+                    payment.status = StatusPayment.Rejeitado.GetValue().ToString();
+                    operadora.LogPayment(payment, TEDResponse.message);
                 }
 
-                if (TEDSend.transactionCode != null)
+                if (TEDResponse.status == 200 && TEDResponse.transfer != null && TEDResponse.message != null)
                 {
-                    payment.transactioncode = TEDSend.transactionCode;
-                    payment.status = PaymentModel.StatusPayment(TEDSend.statusTransfer);
-
-                    operadora.UpdatePayment(payment, TEDSend.description);
+                    payment.status = StatusPayment.EmProcessamento.GetValue().ToString();
+                    payment.transactioncode = TEDResponse.transfer.transactionCode;
+                    operadora.UpdatePayment(payment, TEDResponse.message);
                 }
 
-                return TEDSend;
+                return TEDResponse;
             }
         }
 
@@ -236,12 +234,12 @@ namespace BankService.Services
                 wr.Accept = "application/json";
                 wr.ContentType = "application/json";
 
-                wr.Headers.Add(HttpRequestHeader.ContentType, "text/plain");
+                //wr.Headers.Add(HttpRequestHeader.ContentType, "application/json");
                 wr.Headers.Add(HttpRequestHeader.Authorization, "Bearer " + Tokem.jwt);
 
-                TEDModel Transferbetweenaccounts = new TEDModel()
+                TransferModel Transferbetweenaccounts = new TransferModel()
                 {
-                    id = id_account.ToString(),
+                    account_id = id_account.ToString(),
                     value = payment.valor,
                     password = QeshPass4Dig
                 };
@@ -258,18 +256,23 @@ namespace BankService.Services
                 using TextReader tr = new StreamReader(resp.GetResponseStream());
                 var s = tr.ReadToEnd();
 
-                var responseJson = JsonConvert.DeserializeObject<TransferBetweenAccountsEnvelope>(s);
-                if(responseJson.status != 200)
+                var TransferResponse = JsonConvert.DeserializeObject<TransferBetweenAccountsEnvelope>(s);
+                if(TransferResponse.status != 200 && !String.IsNullOrWhiteSpace(TransferResponse.message))
                 {
                     // falta identificar a assinatura da resposta quando for agendado a transferencia.
-                    operadora.UpdatePayment(payment, responseJson.message);
-                }
-                else
-                {
-                    operadora.UpdatePayment(payment, responseJson.message);
+                    payment.status = StatusPayment.Rejeitado.GetValue().ToString();
+                    operadora.UpdatePayment(payment, TransferResponse.message);
                 }
 
-                return responseJson;
+                if (TransferResponse.status == 200 && TransferResponse.response != null)
+                {
+                    payment.status = StatusPayment.PagamentoRealizado.GetValue().ToString();
+                    payment.transactioncode = TransferResponse.response.transactionCode;
+                    payment.datapagamento = TransferResponse.response.transactionDate;
+                    operadora.UpdatePayment(payment, TransferResponse.response.description);
+                }
+
+                return TransferResponse;
             }
             catch (Exception ex)
             {

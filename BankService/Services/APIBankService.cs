@@ -34,12 +34,14 @@ namespace BankService.Services
                         }
 
                         var tedStatus = bank.TED(operadora, payment, contaId );
+                        logger.LogInformation(tedStatus.message);
+
                     }
                     else
                     {
                         var qeshAccount = bank.GetContactQesh(payment.documento);
                         var transferResult = bank.TransferBetweenAccounts(operadora, payment, qeshAccount.users[0].account_id);
-                        logger.LogInformation(transferResult.message);
+                        logger.LogInformation(transferResult.response.description);
                     }
                                         
                 }
@@ -81,7 +83,7 @@ namespace BankService.Services
 
         private String GetStatusPayment(TEDReturnModel tedSend)
         {
-            return PaymentModel.StatusPayment(tedSend.statusTransfer);
+            return PaymentModel.getStatusPayment(tedSend.statusTransfer);
         }
 
     }

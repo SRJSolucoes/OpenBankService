@@ -7,7 +7,9 @@ namespace BankService.Models
 {
     public class TEDMsgModel
     {
+        public string? message { get; set; }
         public int status { get; set; }
-        public string message { get; set; }
+        public TEDSendModel? transfer { get; set; }
     }
+
 }

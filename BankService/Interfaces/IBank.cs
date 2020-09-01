@@ -15,7 +15,7 @@ namespace BankService.Interfaces
         ContactModel GetContact(String Document, String Bank, String agency, String account);
         ContactsModelSimple GetContacts(String Document, String Bank, String agency, String account);
         UserAccountEnvelope GetContactQesh(String Document);
-        TEDReturnModel TED(IOperadora operadora, PaymentModel payment, int id_account);
+        TEDMsgModel TED(IOperadora operadora, PaymentModel payment, int id_account);
         TransferBetweenAccountsEnvelope TransferBetweenAccounts(IOperadora operadora, PaymentModel payment, int id_account);
     }
 }
