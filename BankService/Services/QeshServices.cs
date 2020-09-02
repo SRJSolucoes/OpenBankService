@@ -213,8 +213,11 @@ namespace BankService.Services
                     payment.transactioncode = TEDResponse.transfer.transactionCode;
                 }
 
-                operadora.UpdatePayment(payment, TEDResponse.message);
-                operadora.LogPayment(payment, TEDResponse.message);
+                if (TEDResponse.message != null)
+                {
+                    operadora.UpdatePayment(payment, TEDResponse.message);
+                    operadora.LogPayment(payment, TEDResponse.message);
+                }
 
                 return TEDResponse;
             }
@@ -258,7 +261,7 @@ namespace BankService.Services
                 var s = tr.ReadToEnd();
 
                 var TransferResponse = JsonConvert.DeserializeObject<TransferBetweenAccountsEnvelope>(s);
-                if(TransferResponse.status != 200 && !String.IsNullOrWhiteSpace(TransferResponse.message))
+                if (TransferResponse.status != 200 && !String.IsNullOrWhiteSpace(TransferResponse.message))
                 {
                     // falta identificar a assinatura da resposta quando for agendado a transferencia.
                     payment.status = StatusPayment.Rejeitado.GetValue().ToString();
