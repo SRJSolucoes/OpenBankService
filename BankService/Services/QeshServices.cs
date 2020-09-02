@@ -205,15 +205,16 @@ namespace BankService.Services
                 if (TEDResponse.status != 200 && TEDResponse.message != null)
                 {
                     payment.status = StatusPayment.Rejeitado.GetValue().ToString();
-                    operadora.LogPayment(payment, TEDResponse.message);
                 }
 
                 if (TEDResponse.status == 200 && TEDResponse.transfer != null && TEDResponse.message != null)
                 {
                     payment.status = StatusPayment.EmProcessamento.GetValue().ToString();
                     payment.transactioncode = TEDResponse.transfer.transactionCode;
-                    operadora.UpdatePayment(payment, TEDResponse.message);
                 }
+
+                operadora.UpdatePayment(payment, TEDResponse.message);
+                operadora.LogPayment(payment, TEDResponse.message);
 
                 return TEDResponse;
             }
