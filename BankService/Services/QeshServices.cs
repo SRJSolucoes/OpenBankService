@@ -164,7 +164,7 @@ namespace BankService.Services
             }
             catch (Exception ex)
             {
-                throw ex;
+                return null;
             }
 
         }

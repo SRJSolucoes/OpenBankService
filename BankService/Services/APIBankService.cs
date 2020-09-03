@@ -17,7 +17,7 @@ namespace BankService.Services
             {
                 try
                 {
-                    if (payment.cdbancodestino != payment.cdbancoorigem) 
+                    if (payment.cdbancodestino != payment.cdbancoorigem)
                     {
                         var destinyContact = bank.GetContacts(payment.documento, payment.cdbancodestino, payment.agenciadestino, payment.contadestino);
                         int contaId;
@@ -33,17 +33,27 @@ namespace BankService.Services
                             contaId = destinyContact.id;
                         }
 
-                        var tedStatus = bank.TED(operadora, payment, contaId );
+                        var tedStatus = bank.TED(operadora, payment, contaId);
                         //logger.LogInformation(tedStatus.message);
 
                     }
                     else
                     {
                         var qeshAccount = bank.GetContactQesh(payment.documento);
-                        var transferResult = bank.TransferBetweenAccounts(operadora, payment, qeshAccount.users[0].account_id);
+                        if (qeshAccount != null && qeshAccount.users.Count > 0)
+                        {
+                            var transferResult = bank.TransferBetweenAccounts(operadora, payment, qeshAccount.users[0].account_id);
+                        }
+                        else
+                        {
+                            operadora.LogPayment(
+                                payment,
+                                "Não foi possível encontrar a conta qesh com o documento informado"
+                                );
+                        }
                         //logger.LogInformation(transferResult.response.description);
                     }
-                                        
+
                 }
                 catch (Exception ex)
                 {

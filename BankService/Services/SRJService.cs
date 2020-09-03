@@ -24,7 +24,7 @@ namespace BankService.Services
         //public const string SRJPass = "Valentina3010";
 
         public const string ApiSRJPagamentosdoDia = "/api/Pagamento/GetPagamentosDoDia";
-        public const string ApiSRJAtualizaStatus = "/api/pagamento/AlterStatus";
+        public const string ApiSRJAtualizaStatus = "/api/pagamento/alterarStatus";
         public const string ApiSRJTokem = "/oauth/login";
         public const string ApiSRJLogPagamento = "/api/Logpagamento";
 
@@ -118,14 +118,12 @@ namespace BankService.Services
             }
         }
 
-        public void UpdatePayment(PaymentModel Payment, String descricao)
+        public void UpdatePayment(PaymentModel payment, String descricao)
         {
             var token = GetSRJToken(SRJUser, SRJPass);
             //{{baseUrl}}/api/pagamento/AlterStatus?id=<integer>&status=<string>&DescricaoLog=<string>
-            String URL = String.Format(
-                            "{0}{1}?id={2}&status={3}&descricaolog={4}",
-                            URLSRJ, ApiSRJAtualizaStatus, Payment.idpagamento, Payment.status, descricao
-                            );
+            String URL = String.Format("{0}{1}/{2}",
+                            URLSRJ, ApiSRJAtualizaStatus, payment.idpagamento);
 
             var wr = (HttpWebRequest)WebRequest.Create(URL);
             wr.Proxy = null;
@@ -137,7 +135,12 @@ namespace BankService.Services
             // TODO: Revisar
             using (TextWriter tw = new StreamWriter(wr.GetRequestStream()))
             {                
-                string str = JsonConvert.SerializeObject(new Object { });
+                string str = JsonConvert.SerializeObject(new {
+                    payment.idpagamento,
+                    payment.status,
+                    descricaoLog = descricao,
+                    payment.transactioncode
+                });
                 tw.Write(str);
             }
 
