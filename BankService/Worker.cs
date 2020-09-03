@@ -41,26 +41,32 @@ namespace BankService
                 var resultado = new ResultadoProcessamento();
                 resultado.Horario = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 
-                try
+                DayOfWeek dayOfWeek = DateTime.Now.DayOfWeek;
+
+                if ((dayOfWeek != DayOfWeek.Saturday) && (dayOfWeek != DayOfWeek.Sunday))  
                 {
-                    _logger.LogInformation("Worker executando em: {time}", DateTimeOffset.Now);
 
-                    // Fazer uma rorina de Schedule disso, para executar quantas vezes for schedulado por dia
-                    BankService.MakeDayTransfers(_logger, Operator, Bank);
+                    try
+                    {
+                        _logger.LogInformation("Worker executando em: {time}", DateTimeOffset.Now);
 
-                    resultado.Status = "Success";
+                        // Fazer uma rorina de Schedule disso, para executar quantas vezes for schedulado por dia
+                        BankService.MakeDayTransfers(_logger, Operator, Bank);
 
-                    await Task.Delay(
-                        _serviceConfigurations.Intervalo, stoppingToken);
+                        resultado.Status = "Success";
 
-                    string jsonResultado = JsonConvert.SerializeObject(resultado);
-                }
-                catch (Exception ex)
-                {
-                    resultado.Status = "Exception";
-                    resultado.Exception = ex;
-                    string jsonResultado = JsonConvert.SerializeObject(resultado);
-                    _logger.LogError(jsonResultado);
+                        await Task.Delay(
+                            _serviceConfigurations.Intervalo, stoppingToken);
+
+                        string jsonResultado = JsonConvert.SerializeObject(resultado);
+                    }
+                    catch (Exception ex)
+                    {
+                        resultado.Status = "Exception";
+                        resultado.Exception = ex;
+                        string jsonResultado = JsonConvert.SerializeObject(resultado);
+                        _logger.LogError(jsonResultado);
+                    }
                 }
             }
 
