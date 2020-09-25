@@ -16,10 +16,10 @@ namespace BankService.Services
     {
         #region Constantes
         //public const string URLSRJ = "http://ec2-18-220-186-213.us-east-2.compute.amazonaws.com/limabtc";
-        public const string SRJUser = "eduardo@gmail.com";
-        public const string SRJPass = "12345";
+        public const string SRJUser = "marciadosanjos14@gmail.com";
+        public const string SRJPass = "marciadosanjos123";
 
-        public const string URLSRJ = "http://localhost:57334";
+        public const string URLSRJ = "https://api.limadosanjos.com.br";
         //public const string SRJUser = "eduardo@srjsolucoes.com.br";
         //public const string SRJPass = "Valentina3010";
 
@@ -173,9 +173,19 @@ namespace BankService.Services
             // TODO: Revisar
             using (TextWriter tw = new StreamWriter(wr.GetRequestStream()))
             {
-                var objeto = new { cpfBeneficiario = payment.documento };
-                string str = JsonConvert.SerializeObject(objeto);
-                tw.Write(str);
+                if (payment.documento.Length <= 11)
+                {
+                    var objeto = new { idBeneficiario = "", nomeBeneficiario = "", cnpjBeneficiario = "", cpfBeneficiario = payment.documento };
+                    string str = JsonConvert.SerializeObject(objeto);
+                    tw.Write(str);
+                }
+                else
+                {
+                    var objeto = new { idBeneficiario = "", nomeBeneficiario = "", cnpjBeneficiario = payment.documento, cpfBeneficiario = ""};
+                    string str = JsonConvert.SerializeObject(objeto);
+                    tw.Write(str);
+                }
+
             }
 
             var resp = wr.GetResponse();
