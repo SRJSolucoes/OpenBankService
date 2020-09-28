@@ -22,14 +22,27 @@ namespace BankService.Services
         public const string ApiQeshTED = "/api/v1/account/to_bank_transfer";
         public const string ApiQeshTransferenciaEntreContas = "/api/v1/account/transfer_to_account";
         public const string ApiQeshTokem = "/api/v1/user_token";
-        public const string QeshUser = "eduardo@srjsolucoes.com.br";
-        public const string QeshPass = "Valentina3010";
-        public const string QeshPass4Dig = "4506";
+        
+        //public const string QeshUser = "eduardo@srjsolucoes.com.br";
+        //public const string QeshPass = "Valentina3010";
+        //public const string QeshPass4Dig = "4506";
+
+        private string pQeshUser { get; set; }
+        private string pQeshPass { get; set; }
+        private string pQeshPass4Dig { get; set; }
 
         #endregion
 
-        #region QeshToken
-        public class QeshToken
+        public QeshServices(string pqeshUser, string pqeshPass, string pqeshPass4Dig)
+        {
+            pQeshUser = pqeshUser;
+            pQeshPass = pqeshPass;
+            pQeshPass4Dig = pqeshPass4Dig;
+
+    }
+
+    #region QeshToken
+    public class QeshToken
         {
             public string status { get; set; }
             public string jwt { get; set; }
@@ -77,7 +90,7 @@ namespace BankService.Services
         }
         public AccountModel GetAccountDetail()
         {
-            var Tokem = GetQeshToken(QeshUser, QeshPass);
+            var Tokem = GetQeshToken(pQeshUser, pQeshPass);
 
             String URL = String.Format("{0}{1}", URLQesh, ApiQeshAccountDetail);
             var client = new WebClient();
@@ -92,7 +105,7 @@ namespace BankService.Services
         {
             try
             {
-                var Token = GetQeshToken(QeshUser, QeshPass);
+                var Token = GetQeshToken(pQeshUser, pQeshPass);
                 String URL = String.Format("{0}{1}", URLQesh, ApiContacts);
 
                 document = SanitizeValue(document);
@@ -141,7 +154,7 @@ namespace BankService.Services
         {
             try
             {
-                var Tokem = GetQeshToken(QeshUser, QeshPass);
+                var Tokem = GetQeshToken(pQeshUser, pQeshPass);
                 Document = Document.Replace(".", "").Replace("-", "").Replace("/", "");
                 var URLAPI = "https://api.qesh.ai/api/v1/users/accounts?document=";
                 String URL = URLAPI + Document;
@@ -171,7 +184,7 @@ namespace BankService.Services
 
         public TEDMsgModel TED(IOperadora operadora, PaymentModel payment, int id_account)
         {
-            var Tokem = GetQeshToken(QeshUser, QeshPass);
+            var Tokem = GetQeshToken(pQeshUser, pQeshPass);
             String URL = String.Format("{0}{1}", URLQesh, ApiQeshTED);
 
             var wr = (HttpWebRequest)WebRequest.Create(URL);
@@ -188,7 +201,7 @@ namespace BankService.Services
                 {
                     id = id_account.ToString(),
                     value = payment.valor,
-                    password = QeshPass4Dig
+                    password = pQeshPass4Dig
                 };
 
                 string str = JsonConvert.SerializeObject(ted);
@@ -229,7 +242,7 @@ namespace BankService.Services
         {
             try
             {
-                var Tokem = GetQeshToken(QeshUser, QeshPass);
+                var Tokem = GetQeshToken(pQeshUser, pQeshPass);
                 String URL = String.Format("{0}{1}", URLQesh, ApiQeshTransferenciaEntreContas);
 
                 var wr = (HttpWebRequest)WebRequest.Create(URL);
@@ -245,7 +258,7 @@ namespace BankService.Services
                 {
                     account_id = id_account.ToString(),
                     value = payment.valor,
-                    password = QeshPass4Dig
+                    password = pQeshPass4Dig
                 };
 
                 using (TextWriter tw = new StreamWriter(wr.GetRequestStream()))
@@ -285,7 +298,7 @@ namespace BankService.Services
         }
         public ContactModel IncludeContact(ContactModel contact)
         {
-            var Tokem = GetQeshToken(QeshUser, QeshPass);
+            var Tokem = GetQeshToken(pQeshUser, pQeshPass);
 
             String URL = String.Format("{0}{1}", URLQesh, ApiQeshIncludeContacts);
             var wr = (HttpWebRequest)WebRequest.Create(URL);
@@ -319,7 +332,7 @@ namespace BankService.Services
         {
             try
             {
-                var Token = GetQeshToken(QeshUser, QeshPass);
+                var Token = GetQeshToken(pQeshUser, pQeshPass);
                 String URL = String.Format("{0}{1}", URLQesh, ApiContacts);
 
                 var wr = (HttpWebRequest)WebRequest.Create(URL);

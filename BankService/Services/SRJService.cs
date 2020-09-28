@@ -16,17 +16,24 @@ namespace BankService.Services
     {
         #region Constantes
         //public const string URLSRJ = "http://ec2-18-220-186-213.us-east-2.compute.amazonaws.com/limabtc";
-        public const string SRJUser = "marciadosanjos14@gmail.com";
-        public const string SRJPass = "marciadosanjos123";
+        //public const string SRJUser = "marciadosanjos14@gmail.com";
+        //public const string SRJPass = "marciadosanjos123";
 
         public const string URLSRJ = "https://api.limadosanjos.com.br";
-        //public const string SRJUser = "eduardo@srjsolucoes.com.br";
-        //public const string SRJPass = "Valentina3010";
 
         public const string ApiSRJPagamentosdoDia = "/api/Pagamento/GetPagamentosDoDia";
         public const string ApiSRJAtualizaStatus = "/api/pagamento/alterarStatus";
         public const string ApiSRJTokem = "/oauth/login";
         public const string ApiSRJLogPagamento = "/api/Logpagamento";
+
+        private string pSRJUser { get; set; }
+        private string pSRJPass { get; set; }
+
+        public SRJService(string psrjUser, string psrjPass)
+        {
+            pSRJUser = psrjUser;
+            pSRJPass = psrjPass;
+        }
 
         #endregion
 
@@ -63,7 +70,7 @@ namespace BankService.Services
 
         public List<PaymentModel> PaymentsoftheDay(String BancoOrigem)
         {
-            var token = GetSRJToken(SRJUser, SRJPass);
+            var token = GetSRJToken(pSRJUser, pSRJPass);
 
             //String URL = String.Format("{0}{1}", URLSRJ, "/api/Pagamento/GetPagamentosEmAbertoLast");
             String URL = String.Format("{0}{1}", URLSRJ, ApiSRJPagamentosdoDia);
@@ -80,7 +87,7 @@ namespace BankService.Services
 
         public void LogPayment(PaymentModel Payment, string message)
         {
-            var Tokem = GetSRJToken(SRJUser, SRJPass);
+            var Tokem = GetSRJToken(pSRJUser, pSRJPass);
             String URL = String.Format("{0}{1}", URLSRJ, ApiSRJLogPagamento);
 
             var wr = (HttpWebRequest)WebRequest.Create(URL);
@@ -120,7 +127,7 @@ namespace BankService.Services
 
         public void UpdatePayment(PaymentModel payment, String descricao)
         {
-            var token = GetSRJToken(SRJUser, SRJPass);
+            var token = GetSRJToken(pSRJUser, pSRJPass);
             //{{baseUrl}}/api/pagamento/AlterStatus?id=<integer>&status=<string>&DescricaoLog=<string>
             String URL = String.Format("{0}{1}/{2}",
                             URLSRJ, ApiSRJAtualizaStatus, payment.idpagamento);
@@ -134,8 +141,9 @@ namespace BankService.Services
             wr.Headers.Add(HttpRequestHeader.Authorization, "Bearer " + token.access_token);
             // TODO: Revisar
             using (TextWriter tw = new StreamWriter(wr.GetRequestStream()))
-            {                
-                string str = JsonConvert.SerializeObject(new {
+            {
+                string str = JsonConvert.SerializeObject(new
+                {
                     payment.idpagamento,
                     payment.status,
                     descricaoLog = descricao,
@@ -159,7 +167,7 @@ namespace BankService.Services
 
         public BeneficiarioModel GetContactInfo(PaymentModel payment)
         {
-            var token = GetSRJToken(SRJUser, SRJPass);
+            var token = GetSRJToken(pSRJUser, pSRJPass);
             //{{baseUrl}}/api/pagamento/AlterStatus?id=<integer>&status=<string>&DescricaoLog=<string>
             String URL = String.Format("{0}{1}", URLSRJ, "/api/Beneficiario/ByFilter");
 
@@ -181,7 +189,7 @@ namespace BankService.Services
                 }
                 else
                 {
-                    var objeto = new { idBeneficiario = "", nomeBeneficiario = "", cnpjBeneficiario = payment.documento, cpfBeneficiario = ""};
+                    var objeto = new { idBeneficiario = "", nomeBeneficiario = "", cnpjBeneficiario = payment.documento, cpfBeneficiario = "" };
                     string str = JsonConvert.SerializeObject(objeto);
                     tw.Write(str);
                 }

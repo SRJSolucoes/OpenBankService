@@ -20,8 +20,12 @@ namespace BankService
         private readonly ServiceConfigurations _serviceConfigurations;
         private readonly IBankService BankService = new APIBankService();
 
-        private readonly IOperadora Operator = new SRJService();
-        private readonly IBank Bank = new QeshServices();
+        private readonly IOperadora Operator = new SRJService("marciadosanjos14@gmail.com",
+                                                              "marciadosanjos123");
+
+        private readonly IBank Bank = new QeshServices("eduardo@srjsolucoes.com.br",
+                                                       "Valentina3010",
+                                                       "4506");
 
         public Worker(ILogger<Worker> logger,
             IConfiguration configuration)
