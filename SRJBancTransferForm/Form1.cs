@@ -22,62 +22,115 @@ namespace SRJBancTransferForm
 
         private void button1_Click(object sender, EventArgs e)
         {
-            IOperadora Operator = new SRJService(tbUsuarioSRJ.Text,
-                                                 tbSenhaSRJ.Text);
-
-            IBank Bank = new QeshServices(tbUsuarioT28.Text,
-                                          tbSenhaT28.Text,
-                                          tbSenha4Dig.Text);
-
-            var resultado = new ResultadoProcessamento();
-            resultado.Horario = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-
-            DayOfWeek dayOfWeek = DateTime.Now.DayOfWeek;
-
-            if ((dayOfWeek != DayOfWeek.Saturday) && (dayOfWeek != DayOfWeek.Sunday))
+            if (TelaValida())
             {
-                try
+                IOperadora Operator = new SRJService(tbUsuarioSRJ.Text,
+                                                     tbSenhaSRJ.Text);
+
+                IBank Bank = new QeshServices(tbUsuarioT28.Text,
+                                              tbSenhaT28.Text,
+                                              tbSenha4Dig.Text);
+
+                var resultado = new ResultadoProcessamento();
+                resultado.Horario = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+
+                DayOfWeek dayOfWeek = DateTime.Now.DayOfWeek;
+
+                if ((dayOfWeek != DayOfWeek.Saturday) && (dayOfWeek != DayOfWeek.Sunday))
                 {
-                    _logger.LogInformation("Worker executando em: {time}", DateTimeOffset.Now);
+                    try
+                    {
+                        _logger.LogInformation("Worker executando em: {time}", DateTimeOffset.Now);
 
-                    // Fazer uma rotina de Schedule disso, para executar quantas vezes for schedulado por dia
-                    BankService.MakeDayTransfers(_logger, Operator, Bank);
+                        // Fazer uma rotina de Schedule disso, para executar quantas vezes for schedulado por dia
+                        BankService.MakeDayTransfers(_logger, Operator, Bank);
 
-                    resultado.Status = "Success";
+                        resultado.Status = "Success";
 
-                    //await Task.Delay(
-                    //    _serviceConfigurations.Intervalo, stoppingToken);
+                        //await Task.Delay(
+                        //    _serviceConfigurations.Intervalo, stoppingToken);
 
-                    string jsonResultado = JsonConvert.SerializeObject(resultado);
-                }
-                catch (Exception ex)
-                {
-                    resultado.Status = "Exception";
-                    resultado.Exception = ex;
-                    string jsonResultado = JsonConvert.SerializeObject(resultado);
-                    _logger.LogError(jsonResultado);
+                        string jsonResultado = JsonConvert.SerializeObject(resultado);
+                    }
+                    catch (Exception ex)
+                    {
+                        resultado.Status = "Exception";
+                        resultado.Exception = ex;
+                        string jsonResultado = JsonConvert.SerializeObject(resultado);
+                        _logger.LogError(jsonResultado);
+                    }
                 }
             }
         }
+        
 
-        private void label4_Click(object sender, EventArgs e)
+        private void button2_Click(object sender, EventArgs e)
         {
-
+            if (button2.Text == "Esconder Senha")
+            {
+                tbSenhaSRJ.PasswordChar = '*';
+                button2.Text = "Mostrar Senha";
+            }
+            else
+            {
+                tbSenhaSRJ.PasswordChar = '\0';
+                button2.Text = "Esconder Senha";
+            }
         }
 
-        private void label6_Click(object sender, EventArgs e)
+        private void button3_Click(object sender, EventArgs e)
         {
-
+            if (button3.Text == "Esconder Senha")
+            {
+                tbSenha4Dig.PasswordChar = '*';
+                button2.Text = "Mostrar Senha";
+            }
+            else
+            {
+                tbSenha4Dig.PasswordChar = '\0';
+                button3.Text = "Esconder Senha";
+            }
         }
 
-        private void pictureBox1_Click(object sender, EventArgs e)
+        private bool TelaValida()
         {
+            if (!validateUserEntry(tbUsuarioSRJ,"Usuário SRF")) {
+                return false;
+            }
 
+            if (!validateUserEntry(tbSenhaSRJ,"Senha SRJ"))
+            {
+                return false;
+            }
+            if (!validateUserEntry(tbUsuarioT28,"Usuário T28"))
+            {
+                return false;
+            }
+            if (!validateUserEntry(tbSenhaT28,"Senha T28"))
+            {
+                return false;
+            }
+            if (!validateUserEntry(tbSenha4Dig, "Senha de 4 dígitos"))
+            {
+                return false;
+            }
+
+            return true;
         }
 
-        private void label1_Click(object sender, EventArgs e)
+        private bool validateUserEntry(TextBox textbox, string nomedocampo)
         {
-
+            // Checks the value of the text.
+            if (textbox.Text.Length == 0)
+            {
+                // Initializes the variables to pass to the MessageBox.Show method.
+                string message = String.Format("O campo {0} deve estar preenchido.", nomedocampo);
+                string caption = "Erro";
+                MessageBoxButtons buttons = MessageBoxButtons.OK;
+                MessageBox.Show(message, caption, buttons);
+                return false;
+            }
+            else return true;
         }
     }
 }
