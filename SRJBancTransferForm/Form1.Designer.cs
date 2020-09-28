@@ -47,6 +47,7 @@
             this.button2 = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.button3 = new System.Windows.Forms.Button();
+            this.lblMsg = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -57,7 +58,7 @@
             this.button1.Location = new System.Drawing.Point(380, 327);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(96, 23);
-            this.button1.TabIndex = 0;
+            this.button1.TabIndex = 6;
             this.button1.Text = "Processar";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
@@ -65,20 +66,21 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(15, 103);
+            this.label1.Location = new System.Drawing.Point(6, 28);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(67, 15);
+            this.label1.Size = new System.Drawing.Size(47, 15);
             this.label1.TabIndex = 1;
-            this.label1.Text = "Usuário SRJ";
+            this.label1.Text = "Usuário";
+            this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(0, 52);
+            this.label2.Location = new System.Drawing.Point(6, 53);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(59, 15);
+            this.label2.Size = new System.Drawing.Size(39, 15);
             this.label2.TabIndex = 1;
-            this.label2.Text = "Senha SRJ";
+            this.label2.Text = "Senha";
             // 
             // label3
             // 
@@ -114,22 +116,24 @@
             this.cbEmpresa.Name = "cbEmpresa";
             this.cbEmpresa.Size = new System.Drawing.Size(310, 23);
             this.cbEmpresa.TabIndex = 2;
+            this.cbEmpresa.Visible = false;
             // 
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(15, 158);
+            this.label6.Location = new System.Drawing.Point(6, 77);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(52, 15);
             this.label6.TabIndex = 1;
             this.label6.Text = "Empresa";
+            this.label6.Visible = false;
             // 
             // tbUsuarioSRJ
             // 
             this.tbUsuarioSRJ.Location = new System.Drawing.Point(125, 98);
             this.tbUsuarioSRJ.Name = "tbUsuarioSRJ";
             this.tbUsuarioSRJ.Size = new System.Drawing.Size(201, 23);
-            this.tbUsuarioSRJ.TabIndex = 3;
+            this.tbUsuarioSRJ.TabIndex = 0;
             // 
             // pictureBox1
             // 
@@ -147,7 +151,7 @@
             this.tbSenhaSRJ.Name = "tbSenhaSRJ";
             this.tbSenhaSRJ.PasswordChar = '*';
             this.tbSenhaSRJ.Size = new System.Drawing.Size(201, 23);
-            this.tbSenhaSRJ.TabIndex = 3;
+            this.tbSenhaSRJ.TabIndex = 1;
             // 
             // tbUsuarioT28
             // 
@@ -160,27 +164,30 @@
             // 
             this.tbSenhaT28.Location = new System.Drawing.Point(116, 51);
             this.tbSenhaT28.Name = "tbSenhaT28";
+            this.tbSenhaT28.PasswordChar = '*';
             this.tbSenhaT28.Size = new System.Drawing.Size(201, 23);
-            this.tbSenhaT28.TabIndex = 3;
+            this.tbSenhaT28.TabIndex = 4;
             // 
             // tbSenha4Dig
             // 
             this.tbSenha4Dig.Location = new System.Drawing.Point(116, 79);
             this.tbSenha4Dig.Name = "tbSenha4Dig";
             this.tbSenha4Dig.PasswordChar = '*';
-            this.tbSenha4Dig.Size = new System.Drawing.Size(94, 23);
-            this.tbSenha4Dig.TabIndex = 3;
+            this.tbSenha4Dig.Size = new System.Drawing.Size(89, 23);
+            this.tbSenha4Dig.TabIndex = 5;
             // 
             // groupBox1
             // 
             this.groupBox1.Controls.Add(this.button2);
             this.groupBox1.Controls.Add(this.label2);
+            this.groupBox1.Controls.Add(this.label6);
+            this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Location = new System.Drawing.Point(12, 78);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(464, 122);
             this.groupBox1.TabIndex = 5;
             this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Dados SRJ";
+            this.groupBox1.Text = "Acesso ao sistema de pagamentos";
             // 
             // button2
             // 
@@ -188,6 +195,7 @@
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(106, 23);
             this.button2.TabIndex = 2;
+            this.button2.TabStop = false;
             this.button2.Text = "Mostrar senha";
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.button2_Click);
@@ -210,31 +218,41 @@
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(212, 79);
+            this.button3.Location = new System.Drawing.Point(211, 79);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(106, 23);
             this.button3.TabIndex = 2;
-            this.button3.Text = "Mostrar senha";
+            this.button3.Text = "Mostrar senhas";
             this.button3.UseVisualStyleBackColor = true;
             this.button3.Click += new System.EventHandler(this.button3_Click);
+            // 
+            // lblMsg
+            // 
+            this.lblMsg.AutoSize = true;
+            this.lblMsg.Font = new System.Drawing.Font("Segoe UI", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.lblMsg.Location = new System.Drawing.Point(47, 327);
+            this.lblMsg.Name = "lblMsg";
+            this.lblMsg.Size = new System.Drawing.Size(279, 25);
+            this.lblMsg.TabIndex = 1;
+            this.lblMsg.Text = "Pagamentos em processamento";
+            this.lblMsg.Visible = false;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(491, 361);
+            this.Controls.Add(this.lblMsg);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.tbSenhaSRJ);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.tbUsuarioSRJ);
-            this.Controls.Add(this.label6);
             this.Controls.Add(this.cbEmpresa);
-            this.Controls.Add(this.label1);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.groupBox1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Name = "Form1";
-            this.Text = "SRJ - Processamente de Pagamentos";
+            this.Text = "Lima dos Anjos - Autorização de Pagamentos";
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
@@ -265,6 +283,7 @@
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Label lblMsg;
     }
 }
 

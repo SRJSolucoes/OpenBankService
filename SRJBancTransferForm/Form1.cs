@@ -24,6 +24,8 @@ namespace SRJBancTransferForm
         {
             if (TelaValida())
             {
+                lblMsg.Visible = true;
+
                 IOperadora Operator = new SRJService(tbUsuarioSRJ.Text,
                                                      tbSenhaSRJ.Text);
 
@@ -40,7 +42,7 @@ namespace SRJBancTransferForm
                 {
                     try
                     {
-                        _logger.LogInformation("Worker executando em: {time}", DateTimeOffset.Now);
+                        //_logger.LogInformation("Worker executando em: {time}", DateTimeOffset.Now);
 
                         // Fazer uma rotina de Schedule disso, para executar quantas vezes for schedulado por dia
                         BankService.MakeDayTransfers(_logger, Operator, Bank);
@@ -51,15 +53,18 @@ namespace SRJBancTransferForm
                         //    _serviceConfigurations.Intervalo, stoppingToken);
 
                         string jsonResultado = JsonConvert.SerializeObject(resultado);
+                        lblMsg.Visible = false;
                     }
                     catch (Exception ex)
                     {
+                        lblMsg.Visible = false;
                         resultado.Status = "Exception";
                         resultado.Exception = ex;
                         string jsonResultado = JsonConvert.SerializeObject(resultado);
-                        _logger.LogError(jsonResultado);
+                        //_logger.LogError(jsonResultado);
                     }
                 }
+
             }
         }
         
@@ -82,11 +87,13 @@ namespace SRJBancTransferForm
         {
             if (button3.Text == "Esconder Senha")
             {
+                tbSenhaT28.PasswordChar = '*';
                 tbSenha4Dig.PasswordChar = '*';
                 button2.Text = "Mostrar Senha";
             }
             else
             {
+                tbSenhaT28.PasswordChar = '\0';
                 tbSenha4Dig.PasswordChar = '\0';
                 button3.Text = "Esconder Senha";
             }
@@ -131,6 +138,11 @@ namespace SRJBancTransferForm
                 return false;
             }
             else return true;
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
