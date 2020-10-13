@@ -49,9 +49,6 @@ namespace SRJBancTransferForm
 
                         resultado.Status = "Success";
 
-                        //await Task.Delay(
-                        //    _serviceConfigurations.Intervalo, stoppingToken);
-
                         string jsonResultado = JsonConvert.SerializeObject(resultado);
                         lblMsg.Visible = false;
                     }
@@ -61,7 +58,6 @@ namespace SRJBancTransferForm
                         resultado.Status = "Exception";
                         resultado.Exception = ex;
                         string jsonResultado = JsonConvert.SerializeObject(resultado);
-                        //_logger.LogError(jsonResultado);
                     }
                 }
 

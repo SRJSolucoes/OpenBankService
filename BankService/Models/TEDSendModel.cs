@@ -15,7 +15,7 @@ namespace BankService.Models
         public PaymentDocument receipt { get; set; }
         public string ted_tax { get; set; }
         public int transfer_id { get; set; }
-        public int value { get; set; }
+        public decimal value { get; set; }
         public string user_id { get; set; }
 
     }

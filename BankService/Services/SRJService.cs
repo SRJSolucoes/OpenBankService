@@ -48,167 +48,202 @@ namespace BankService.Services
 
         public SRJToken GetSRJToken(string usuario, string senha)
         {
-            String URL = String.Format("{0}{1}", URLSRJ, ApiSRJTokem);
-            var wr = (HttpWebRequest)WebRequest.Create(URL);
-            wr.Proxy = null;
-            wr.Method = "POST";
-            wr.ContentType = "application/x-www-form-urlencoded";
-
-            using (TextWriter tw = new StreamWriter(wr.GetRequestStream()))
+            try
             {
-                tw.Write("username=" + usuario + "&password=" + senha + "&grant_type=password");
+
+                String URL = String.Format("{0}{1}", URLSRJ, ApiSRJTokem);
+                var wr = (HttpWebRequest)WebRequest.Create(URL);
+                wr.Proxy = null;
+                wr.Method = "POST";
+                wr.ContentType = "application/x-www-form-urlencoded";
+
+                using (TextWriter tw = new StreamWriter(wr.GetRequestStream()))
+                {
+                    tw.Write("username=" + usuario + "&password=" + senha + "&grant_type=password");
+                }
+
+                var resp = wr.GetResponse();
+
+                using (TextReader tr = new StreamReader(resp.GetResponseStream()))
+                {
+                    var s = tr.ReadToEnd();
+                    return JsonConvert.DeserializeObject<SRJToken>(s);
+                }
             }
-
-            var resp = wr.GetResponse();
-
-            using (TextReader tr = new StreamReader(resp.GetResponseStream()))
+            catch (Exception ex)
             {
-                var s = tr.ReadToEnd();
-                return JsonConvert.DeserializeObject<SRJToken>(s);
+                throw ex;
             }
         }
 
         public List<PaymentModel> PaymentsoftheDay(String BancoOrigem)
         {
-            var token = GetSRJToken(pSRJUser, pSRJPass);
+            try
+            {
+                var token = GetSRJToken(pSRJUser, pSRJPass);
 
-            //String URL = String.Format("{0}{1}", URLSRJ, "/api/Pagamento/GetPagamentosEmAbertoLast");
-            String URL = String.Format("{0}{1}", URLSRJ, ApiSRJPagamentosdoDia);
-            var client = new WebClient();
+                //String URL = String.Format("{0}{1}", URLSRJ, "/api/Pagamento/GetPagamentosEmAbertoLast");
+                String URL = String.Format("{0}{1}", URLSRJ, ApiSRJPagamentosdoDia);
+                var client = new WebClient();
 
-            client.Headers.Add(HttpRequestHeader.ContentType, "text/plain");
-            client.Headers.Add(HttpRequestHeader.Authorization, "Bearer " + token.access_token);
+                client.Headers.Add(HttpRequestHeader.ContentType, "text/plain");
+                client.Headers.Add(HttpRequestHeader.Authorization, "Bearer " + token.access_token);
 
-            var resultData = Encoding.UTF8.GetString(client.DownloadData(URL));
-            var payments = JsonConvert.DeserializeObject<List<PaymentModel>>(resultData)
-                .Where(x => x.cdbancoorigem == BancoOrigem || x.transactioncode == null);
-            return payments.ToList();
+                var resultData = Encoding.UTF8.GetString(client.DownloadData(URL));
+                var payments = JsonConvert.DeserializeObject<List<PaymentModel>>(resultData)
+                    .Where(x => x.cdbancoorigem == BancoOrigem || x.transactioncode == null);
+                return payments.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         public void LogPayment(PaymentModel Payment, string message)
         {
-            var Tokem = GetSRJToken(pSRJUser, pSRJPass);
-            String URL = String.Format("{0}{1}", URLSRJ, ApiSRJLogPagamento);
-
-            var wr = (HttpWebRequest)WebRequest.Create(URL);
-            wr.Proxy = null;
-            wr.Method = "POST";
-            wr.Accept = "application/json";
-            wr.ContentType = "application/json";
-
-            wr.Headers.Add(HttpRequestHeader.Authorization, "Bearer " + Tokem.access_token);
-            // TODO: Revisar
-            using (TextWriter tw = new StreamWriter(wr.GetRequestStream()))
+            try
             {
-                LogpagamentoModel logpagamento = new LogpagamentoModel()
+                var Tokem = GetSRJToken(pSRJUser, pSRJPass);
+                String URL = String.Format("{0}{1}", URLSRJ, ApiSRJLogPagamento);
+
+                var wr = (HttpWebRequest)WebRequest.Create(URL);
+                wr.Proxy = null;
+                wr.Method = "POST";
+                wr.Accept = "application/json";
+                wr.ContentType = "application/json";
+
+                wr.Headers.Add(HttpRequestHeader.Authorization, "Bearer " + Tokem.access_token);
+                // TODO: Revisar
+                using (TextWriter tw = new StreamWriter(wr.GetRequestStream()))
                 {
-                    idlogpagamento = 0,
-                    datalog = DateTime.UtcNow,
-                    codretorno = "NULL",
-                    status = Payment.status,
-                    dsretorno = message,
-                    dataregistro = DateTime.UtcNow,
-                    transactioncode = Payment.transactioncode,
-                    pagamento = new PaymentIDModel() { idpagamento = Payment.idpagamento },
-                    usuario = new UsuarioIDModel() { idusuario = 0 }
-                };
+                    LogpagamentoModel logpagamento = new LogpagamentoModel()
+                    {
+                        idlogpagamento = 0,
+                        datalog = DateTime.UtcNow,
+                        codretorno = "NULL",
+                        status = Payment.status,
+                        dsretorno = message,
+                        dataregistro = DateTime.UtcNow,
+                        transactioncode = Payment.transactioncode,
+                        pagamento = new PaymentIDModel() { idpagamento = Payment.idpagamento },
+                        usuario = new UsuarioIDModel() { idusuario = 0 }
+                    };
 
-                string str = JsonConvert.SerializeObject(logpagamento);
-                tw.Write(str);
+                    string str = JsonConvert.SerializeObject(logpagamento);
+                    tw.Write(str);
+                }
+
+                var resp = wr.GetResponse();
+
+                using (TextReader tr = new StreamReader(resp.GetResponseStream()))
+                {
+                    var s = tr.ReadToEnd();
+                }
             }
-
-            var resp = wr.GetResponse();
-
-            using (TextReader tr = new StreamReader(resp.GetResponseStream()))
+            catch (Exception ex)
             {
-                var s = tr.ReadToEnd();
+                throw ex;
             }
         }
 
         public void UpdatePayment(PaymentModel payment, String descricao)
         {
-            var token = GetSRJToken(pSRJUser, pSRJPass);
-            //{{baseUrl}}/api/pagamento/AlterStatus?id=<integer>&status=<string>&DescricaoLog=<string>
-            String URL = String.Format("{0}{1}/{2}",
-                            URLSRJ, ApiSRJAtualizaStatus, payment.idpagamento);
-
-            var wr = (HttpWebRequest)WebRequest.Create(URL);
-            wr.Proxy = null;
-            wr.Method = "PUT";
-            wr.Accept = "application/json";
-            wr.ContentType = "application/json";
-
-            wr.Headers.Add(HttpRequestHeader.Authorization, "Bearer " + token.access_token);
-            // TODO: Revisar
-            using (TextWriter tw = new StreamWriter(wr.GetRequestStream()))
+            try
             {
-                string str = JsonConvert.SerializeObject(new
+                var token = GetSRJToken(pSRJUser, pSRJPass);
+                //{{baseUrl}}/api/pagamento/AlterStatus?id=<integer>&status=<string>&DescricaoLog=<string>
+                String URL = String.Format("{0}{1}/{2}",
+                                URLSRJ, ApiSRJAtualizaStatus, payment.idpagamento);
+
+                var wr = (HttpWebRequest)WebRequest.Create(URL);
+                wr.Proxy = null;
+                wr.Method = "PUT";
+                wr.Accept = "application/json";
+                wr.ContentType = "application/json";
+
+                wr.Headers.Add(HttpRequestHeader.Authorization, "Bearer " + token.access_token);
+                // TODO: Revisar
+                using (TextWriter tw = new StreamWriter(wr.GetRequestStream()))
                 {
-                    payment.idpagamento,
-                    payment.status,
-                    descricaoLog = descricao,
-                    payment.transactioncode
-                });
-                tw.Write(str);
+                    string str = JsonConvert.SerializeObject(new
+                    {
+                        payment.idpagamento,
+                        payment.status,
+                        descricaoLog = descricao,
+                        payment.transactioncode
+                    });
+                    tw.Write(str);
+                }
+
+                var resp = wr.GetResponse();
+
+                using (TextReader tr = new StreamReader(resp.GetResponseStream()))
+                {
+                    var s = tr.ReadToEnd();
+                }
+
+                //var resultData = Encoding.UTF8.GetString(client.DownloadData(URL));
+                ////var resultData = Encoding.UTF8.GetString(data);
+                //var payment = JsonConvert.DeserializeObject<PaymentModel>(resultData);
             }
-
-            var resp = wr.GetResponse();
-
-            using (TextReader tr = new StreamReader(resp.GetResponseStream()))
+            catch (Exception ex)
             {
-                var s = tr.ReadToEnd();
+                throw ex;
             }
-
-            //var resultData = Encoding.UTF8.GetString(client.DownloadData(URL));
-            ////var resultData = Encoding.UTF8.GetString(data);
-            //var payment = JsonConvert.DeserializeObject<PaymentModel>(resultData);
-
         }
 
         public BeneficiarioModel GetContactInfo(PaymentModel payment)
         {
-            var token = GetSRJToken(pSRJUser, pSRJPass);
-            //{{baseUrl}}/api/pagamento/AlterStatus?id=<integer>&status=<string>&DescricaoLog=<string>
-            String URL = String.Format("{0}{1}", URLSRJ, "/api/Beneficiario/ByFilter");
-
-            var wr = (HttpWebRequest)WebRequest.Create(URL);
-            wr.Proxy = null;
-            wr.Method = "POST";
-            wr.Accept = "application/json";
-            wr.ContentType = "application/json";
-
-            wr.Headers.Add(HttpRequestHeader.Authorization, "Bearer " + token.access_token);
-            // TODO: Revisar
-            using (TextWriter tw = new StreamWriter(wr.GetRequestStream()))
+            try
             {
-                if (payment.documento.Length <= 11)
+                var token = GetSRJToken(pSRJUser, pSRJPass);
+                //{{baseUrl}}/api/pagamento/AlterStatus?id=<integer>&status=<string>&DescricaoLog=<string>
+                String URL = String.Format("{0}{1}", URLSRJ, "/api/Beneficiario/ByFilter");
+
+                var wr = (HttpWebRequest)WebRequest.Create(URL);
+                wr.Proxy = null;
+                wr.Method = "POST";
+                wr.Accept = "application/json";
+                wr.ContentType = "application/json";
+
+                wr.Headers.Add(HttpRequestHeader.Authorization, "Bearer " + token.access_token);
+                // TODO: Revisar
+                using (TextWriter tw = new StreamWriter(wr.GetRequestStream()))
                 {
-                    var objeto = new { idBeneficiario = "", nomeBeneficiario = "", cnpjBeneficiario = "", cpfBeneficiario = payment.documento };
-                    string str = JsonConvert.SerializeObject(objeto);
-                    tw.Write(str);
-                }
-                else
-                {
-                    var objeto = new { idBeneficiario = "", nomeBeneficiario = "", cnpjBeneficiario = payment.documento, cpfBeneficiario = "" };
-                    string str = JsonConvert.SerializeObject(objeto);
-                    tw.Write(str);
+                    if (payment.documento.Length <= 11)
+                    {
+                        var objeto = new { idBeneficiario = "", nomeBeneficiario = "", cnpjBeneficiario = "", cpfBeneficiario = payment.documento };
+                        string str = JsonConvert.SerializeObject(objeto);
+                        tw.Write(str);
+                    }
+                    else
+                    {
+                        var objeto = new { idBeneficiario = "", nomeBeneficiario = "", cnpjBeneficiario = payment.documento, cpfBeneficiario = "" };
+                        string str = JsonConvert.SerializeObject(objeto);
+                        tw.Write(str);
+                    }
+
                 }
 
+                var resp = wr.GetResponse();
+
+                using (TextReader tr = new StreamReader(resp.GetResponseStream()))
+                {
+                    var s = tr.ReadToEnd();
+                    var list = JsonConvert.DeserializeObject<List<BeneficiarioModel>>(s);
+                    var beneficiario = list.FirstOrDefault();
+                    return beneficiario;
+                }
+
+                //var resultData = Encoding.UTF8.GetString(client.DownloadData(URL));
+                ////var resultData = Encoding.UTF8.GetString(data);
+                //var payment = JsonConvert.DeserializeObject<PaymentModel>(resultData);
             }
-
-            var resp = wr.GetResponse();
-
-            using (TextReader tr = new StreamReader(resp.GetResponseStream()))
+            catch (Exception ex)
             {
-                var s = tr.ReadToEnd();
-                var list = JsonConvert.DeserializeObject<List<BeneficiarioModel>>(s);
-                var beneficiario = list.FirstOrDefault();
-                return beneficiario;
+                throw ex;
             }
-
-            //var resultData = Encoding.UTF8.GetString(client.DownloadData(URL));
-            ////var resultData = Encoding.UTF8.GetString(data);
-            //var payment = JsonConvert.DeserializeObject<PaymentModel>(resultData);
         }
     }
 }
